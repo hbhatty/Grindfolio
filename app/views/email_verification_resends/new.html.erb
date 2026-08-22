@@ -1,0 +1,18 @@
+<% content_for :title, "Resend verification email" %>
+
+<main>
+  <h1>Resend verification email</h1>
+  <p>Enter the email address you used to create your Gridfolio account.</p>
+
+  <%= form_with url: email_verification_resend_path, scope: :email_verification_resend, method: :post do |form| %>
+    <div>
+      <%= form.label :email_address, "Email address" %>
+      <%= form.email_field :email_address,
+        required: true,
+        autocomplete: "email",
+        maxlength: 254 %>
+    </div>
+
+    <%= form.submit "Send verification email" %>
+  <% end %>
+</main>

@@ -1,0 +1,70 @@
+<% content_for :title, "GitHub authorization succeeded" %>
+
+<main>
+  <h1>GitHub authorization succeeded</h1>
+  <p>This development probe queried GitHub without saving the access token, refresh token, identity, or contribution data.</p>
+
+  <section aria-labelledby="github-identity-heading">
+    <h2 id="github-identity-heading">Verified GitHub identity</h2>
+    <dl>
+      <dt>Username</dt>
+      <dd><%= @probe[:github_login] %></dd>
+      <dt>OAuth user ID</dt>
+      <dd><%= @oauth_identity[:uid] %></dd>
+      <dt>GraphQL database ID</dt>
+      <dd><%= @probe[:github_database_id] %></dd>
+      <dt>GraphQL node ID</dt>
+      <dd><%= @probe[:github_node_id] %></dd>
+    </dl>
+  </section>
+
+  <section aria-labelledby="github-token-heading">
+    <h2 id="github-token-heading">Token behavior</h2>
+    <dl>
+      <dt>Expiring access token</dt>
+      <dd><%= @token_metadata[:expires] ? "Yes" : "No" %></dd>
+      <dt>Access token expires at</dt>
+      <dd><%= @token_metadata[:expires_at]&.iso8601 || "Not provided" %></dd>
+      <dt>Refresh token received</dt>
+      <dd><%= @token_metadata[:refresh_token_present] ? "Yes" : "No" %></dd>
+      <dt>OAuth scopes</dt>
+      <dd><%= @token_metadata[:granted_scope] %></dd>
+    </dl>
+  </section>
+
+  <section aria-labelledby="github-calendar-heading">
+    <h2 id="github-calendar-heading">Contribution-calendar result</h2>
+    <dl>
+      <dt>Returned period</dt>
+      <dd><%= @probe[:started_at] %> through <%= @probe[:ended_at] %></dd>
+      <dt>Total contributions</dt>
+      <dd><%= @probe[:total_contributions] %></dd>
+      <dt>Restricted/private aggregate contributions</dt>
+      <dd><%= @probe[:restricted_contributions] %></dd>
+      <dt>GraphQL query cost</dt>
+      <dd><%= @probe.dig(:rate_limit, "cost") %></dd>
+      <dt>GraphQL points remaining</dt>
+      <dd><%= @probe.dig(:rate_limit, "remaining") %></dd>
+    </dl>
+
+    <table>
+      <caption>Daily totals returned by GitHub</caption>
+      <thead>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Contributions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @probe[:days].each do |day| %>
+          <tr>
+            <td><%= day.fetch("date") %></td>
+            <td><%= day.fetch("contributionCount") %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+  </section>
+
+  <p><%= link_to "Back to account", account_path %></p>
+</main>

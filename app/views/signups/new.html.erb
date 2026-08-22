@@ -1,0 +1,52 @@
+<% content_for :title, "Create your Gridfolio account" %>
+
+<main>
+  <h1>Create your Gridfolio account</h1>
+  <p>Use your email address to create a provider-independent Gridfolio account.</p>
+
+  <% if @password_credential.errors.any? %>
+    <div role="alert">
+      <h2>Check the form</h2>
+      <ul>
+        <% @password_credential.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <%= form_with model: @password_credential, scope: :signup, url: sign_up_path, method: :post do |form| %>
+    <div>
+      <%= form.label :email_address, "Email address" %>
+      <%= form.email_field :email_address,
+        autocomplete: "email",
+        required: true,
+        maxlength: 254,
+        autofocus: true %>
+    </div>
+
+    <div>
+      <%= form.label :password, "Password" %>
+      <%= form.password_field :password,
+        value: nil,
+        autocomplete: "new-password",
+        required: true,
+        minlength: PasswordCredential::PASSWORD_MINIMUM_LENGTH,
+        maxlength: PasswordCredential::PASSWORD_MAXIMUM_BYTES,
+        aria: { describedby: "password-help" } %>
+      <small id="password-help">Use at least 8 characters. Passwords must be no more than 72 bytes; some characters use more than one byte.</small>
+    </div>
+
+    <div>
+      <%= form.label :password_confirmation, "Confirm password" %>
+      <%= form.password_field :password_confirmation,
+        value: nil,
+        autocomplete: "new-password",
+        required: true,
+        minlength: PasswordCredential::PASSWORD_MINIMUM_LENGTH,
+        maxlength: PasswordCredential::PASSWORD_MAXIMUM_BYTES %>
+    </div>
+
+    <%= form.submit "Create account" %>
+  <% end %>
+</main>

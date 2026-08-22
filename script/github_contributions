@@ -1,0 +1,98 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+if ! command -v gh >/dev/null 2>&1; then
+  echo "GitHub CLI (gh) is required." >&2
+  exit 1
+fi
+
+if ! command -v jq >/dev/null 2>&1; then
+  echo "jq is required." >&2
+  exit 1
+fi
+
+if ! gh auth status --hostname github.com >/dev/null 2>&1; then
+  echo "Authenticate first with: gh auth login" >&2
+  exit 1
+fi
+
+from_date="${1:-$(date -u -d '29 days ago' +%F)}"
+to_date="${2:-$(date -u +%F)}"
+
+if [[ ! "$from_date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] ||
+   [[ ! "$to_date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+  echo "Usage: script/github_contributions [FROM_DATE] [TO_DATE]" >&2
+  echo "Dates must use YYYY-MM-DD." >&2
+  exit 1
+fi
+
+from="${from_date}T00:00:00Z"
+to="${to_date}T23:59:59Z"
+
+read -r -d '' query <<'GRAPHQL' || true
+query GridfolioContributionProbe($from: DateTime!, $to: DateTime!) {
+  viewer {
+    id
+    login
+    name
+    contributionsCollection(from: $from, to: $to) {
+      startedAt
+      endedAt
+      restrictedContributionsCount
+      totalCommitContributions
+      totalIssueContributions
+      totalPullRequestContributions
+      totalPullRequestReviewContributions
+      contributionCalendar {
+        totalContributions
+        weeks {
+          contributionDays {
+            date
+            contributionCount
+            weekday
+          }
+        }
+      }
+    }
+  }
+  rateLimit {
+    cost
+    remaining
+    resetAt
+  }
+}
+GRAPHQL
+
+response="$(
+  gh api graphql \
+    -f query="$query" \
+    -F from="$from" \
+    -F to="$to"
+)"
+
+jq '{
+  user: {
+    login: .data.viewer.login,
+    name: .data.viewer.name,
+    stableId: .data.viewer.id
+  },
+  period: {
+    startedAt: .data.viewer.contributionsCollection.startedAt,
+    endedAt: .data.viewer.contributionsCollection.endedAt
+  },
+  totals: {
+    contributions: .data.viewer.contributionsCollection.contributionCalendar.totalContributions,
+    commits: .data.viewer.contributionsCollection.totalCommitContributions,
+    issues: .data.viewer.contributionsCollection.totalIssueContributions,
+    pullRequests: .data.viewer.contributionsCollection.totalPullRequestContributions,
+    pullRequestReviews: .data.viewer.contributionsCollection.totalPullRequestReviewContributions,
+    restrictedContributions: .data.viewer.contributionsCollection.restrictedContributionsCount
+  },
+  activeDays: [
+    .data.viewer.contributionsCollection.contributionCalendar.weeks[].contributionDays[]
+    | select(.contributionCount > 0)
+    | { date, contributionCount, weekday }
+  ],
+  rateLimit: .data.rateLimit
+}' <<<"$response"

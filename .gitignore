@@ -1,0 +1,36 @@
+/AGENTS.md
+
+# Local environment and secrets
+.env
+.env.*
+!.env.example
+.mise.local.toml
+
+# Local tooling state
+.bundle/
+.ruby-lsp/
+
+# Rails runtime files
+/log/*
+/tmp/*
+!/log/.keep
+!/tmp/.keep
+
+# Ignore PID files while retaining their directory.
+/tmp/pids/*
+!/tmp/pids/
+!/tmp/pids/.keep
+
+# Ignore development uploads and generated assets.
+/storage/*
+!/storage/.keep
+/tmp/storage/*
+!/tmp/storage/
+!/tmp/storage/.keep
+/public/assets
+
+# Ignore key files for decrypting credentials and more.
+/config/*.key
+
+# Ignore key files for decrypting credentials and more.
+/config/credentials/*.key

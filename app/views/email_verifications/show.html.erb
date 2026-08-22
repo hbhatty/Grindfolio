@@ -1,0 +1,10 @@
+<% content_for :title, "Verify your email" %>
+
+<main>
+  <h1>Verify your email</h1>
+  <p>Confirm that <strong><%= @password_credential.email_address %></strong> belongs to you.</p>
+
+  <%= form_with url: confirm_email_verification_path(token: @verification_token), method: :post do %>
+    <%= submit_tag "Verify email" %>
+  <% end %>
+</main>

@@ -1,0 +1,75 @@
+<% content_for :title, "Your Gridfolio account" %>
+
+<main>
+  <h1>Your Gridfolio account</h1>
+  <p>Your account and activity are private. Gridfolio does not have public profiles or sharing features yet.</p>
+
+  <section aria-labelledby="account-details-heading">
+    <h2 id="account-details-heading">Account details</h2>
+
+    <% if @verified_email_address %>
+      <dl>
+        <dt>Verified email address</dt>
+        <dd><%= @verified_email_address %></dd>
+      </dl>
+    <% end %>
+
+    <% if @user.errors.any? %>
+      <div role="alert">
+        <h3>Check the form</h3>
+        <ul>
+          <% @user.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <%= form_with model: @user, url: account_path, method: :patch do |form| %>
+      <div>
+        <%= form.label :time_zone, "Time zone" %>
+        <%= form.select :time_zone,
+          options_for_select(User::IANA_TIME_ZONE_IDENTIFIERS, @user.time_zone),
+          { include_blank: "Select your time zone" },
+          required: true,
+          aria: { describedby: "time-zone-help" } %>
+        <small id="time-zone-help">Choose the IANA time zone Gridfolio should use for your local calendar dates.</small>
+      </div>
+
+      <%= form.submit "Save time zone" %>
+    <% end %>
+  </section>
+
+  <section aria-labelledby="provider-connections-heading">
+    <h2 id="provider-connections-heading">Provider connections</h2>
+    <p>Provider connections are not stored yet. The local GitHub authorization probe makes one read-only request and discards its tokens and results.</p>
+
+    <ul>
+      <li>
+        <h3>GitHub</h3>
+        <p>Build activity</p>
+        <% if Rails.env.local? %>
+          <%= button_to "Test GitHub authorization",
+            "/auth/github",
+            method: :post,
+            form: { data: { turbo: false } } %>
+          <p>This probe does not connect or save the account.</p>
+        <% else %>
+          <button type="button" disabled>Connect GitHub — Coming soon</button>
+        <% end %>
+      </li>
+      <li>
+        <h3>LeetCode</h3>
+        <p>Practice activity</p>
+        <button type="button" disabled>Connect LeetCode — Coming soon</button>
+      </li>
+      <li>
+        <h3>Notion</h3>
+        <p>Job application activity</p>
+        <button type="button" disabled>Connect Notion — Coming soon</button>
+      </li>
+    </ul>
+  </section>
+
+  <p><%= link_to "Back to home", root_path %></p>
+</main>

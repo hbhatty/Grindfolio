@@ -1,0 +1,7 @@
+[tools]
+ruby = "3.4.10"
+node = "24.19.0"
+
+[env]
+# Prefer WSL's sticky-bit-protected temp directory over inherited Windows paths.
+TMPDIR = "/tmp"

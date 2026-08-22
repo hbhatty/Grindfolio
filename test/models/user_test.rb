@@ -1,0 +1,44 @@
+require "test_helper"
+
+class UserTest < ActiveSupport::TestCase
+  test "can exist without a password credential" do
+    user = User.create!
+
+    assert_nil user.password_credential
+  end
+
+  test "can exist without a time zone before account setup" do
+    user = User.create!
+
+    assert_nil user.time_zone
+  end
+
+  test "accepts an IANA time zone identifier" do
+    user = User.new(time_zone: "America/Toronto")
+
+    assert_predicate user, :valid?
+  end
+
+  test "rejects blank and invalid time zone identifiers" do
+    [ "", "Eastern Time (US & Canada)", "Not/A_Time_Zone" ].each do |time_zone|
+      user = User.new(time_zone:)
+
+      assert_not user.valid?
+      assert_includes user.errors[:time_zone], "is not a valid IANA time zone"
+    end
+  end
+
+  test "destroys its password credential" do
+    user = User.create!
+    credential = user.create_password_credential!(
+      email_address: "developer@example.com",
+      password: "correct horse battery staple",
+      password_confirmation: "correct horse battery staple"
+    )
+
+    assert_difference -> { PasswordCredential.count }, -1 do
+      user.destroy!
+    end
+    assert_not PasswordCredential.exists?(credential.id)
+  end
+end

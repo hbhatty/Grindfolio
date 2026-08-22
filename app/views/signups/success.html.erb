@@ -1,0 +1,8 @@
+<% content_for :title, "Check your email" %>
+
+<main>
+  <h1>Check your email</h1>
+  <p>We sent a verification link to the email address you provided.</p>
+  <p>Open the link to verify your email and finish signing in.</p>
+  <p><%= link_to "Didn't receive it? Request another verification email", new_email_verification_resend_path %></p>
+</main>

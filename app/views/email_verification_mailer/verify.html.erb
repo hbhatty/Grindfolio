@@ -1,0 +1,9 @@
+<h1>Verify your Gridfolio email</h1>
+
+<p>Thanks for creating a Gridfolio account.</p>
+
+<p>
+  <%= link_to "Verify your email", email_verification_url(token: @verification_token) %>
+</p>
+
+<p>This link expires in 24 hours.</p>

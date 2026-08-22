@@ -1,0 +1,35 @@
+<% content_for :title, "Sign in to Gridfolio" %>
+
+<main>
+  <h1>Sign in to Gridfolio</h1>
+  <p>Use your verified email address and password to continue.</p>
+
+  <% if @password_credential.errors.any? %>
+    <div role="alert">
+      <p>Invalid email address or password.</p>
+    </div>
+  <% end %>
+
+  <%= form_with scope: :session, url: sign_in_path, method: :post do |form| %>
+    <div>
+      <%= form.label :email_address, "Email address" %>
+      <%= form.email_field :email_address,
+        value: @password_credential.email_address,
+        autocomplete: "email",
+        required: true,
+        maxlength: 254,
+        autofocus: true %>
+    </div>
+
+    <div>
+      <%= form.label :password, "Password" %>
+      <%= form.password_field :password,
+        value: nil,
+        autocomplete: "current-password",
+        required: true,
+        maxlength: PasswordCredential::PASSWORD_MAXIMUM_BYTES %>
+    </div>
+
+    <%= form.submit "Sign in" %>
+  <% end %>
+</main>
