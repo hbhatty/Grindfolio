@@ -52,6 +52,26 @@ class CleanupStaleRegistrationsJobTest < ActiveJob::TestCase
     assert PasswordCredential.exists?(credential.id)
   end
 
+  test "preserves an established account with an external identity" do
+    user, credential = create_registration(created_at: NOW - 8.days)
+    identity = user.external_identities.create!(
+      provider: "github",
+      provider_uid: "github-id"
+    )
+
+    travel_to NOW do
+      assert_no_difference -> { User.count } do
+        assert_no_difference -> { PasswordCredential.count } do
+          CleanupStaleRegistrationsJob.perform_now
+        end
+      end
+    end
+
+    assert User.exists?(user.id)
+    assert PasswordCredential.exists?(credential.id)
+    assert ExternalIdentity.exists?(identity.id)
+  end
+
   test "is safe to run again after removing an eligible registration" do
     create_registration(created_at: NOW - 8.days)
 

@@ -3,6 +3,7 @@ class User < ApplicationRecord
 
   has_one :password_credential, dependent: :destroy
   has_many :sessions, dependent: :destroy
+  has_many :external_identities, dependent: :destroy
 
   validate :time_zone_is_valid_iana_identifier
 

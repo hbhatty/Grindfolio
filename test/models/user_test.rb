@@ -41,4 +41,20 @@ class UserTest < ActiveSupport::TestCase
     end
     assert_not PasswordCredential.exists?(credential.id)
   end
+
+  test "destroys its external identities and their GitHub activity" do
+    user = User.create!
+    identity = user.external_identities.create!(provider: "github", provider_uid: "github-id")
+    connection = identity.create_github_connection!(tracking_started_on: Date.new(2026, 8, 22))
+    contribution = connection.daily_contributions.create!(
+      activity_date: Date.new(2026, 8, 22),
+      contribution_count: 1
+    )
+
+    user.destroy!
+
+    assert_not ExternalIdentity.exists?(identity.id)
+    assert_not GithubConnection.exists?(connection.id)
+    assert_not GithubDailyContribution.exists?(contribution.id)
+  end
 end

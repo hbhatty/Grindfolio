@@ -12,7 +12,9 @@ class CleanupStaleRegistrationsJob < ApplicationJob
 
   private
     def eligible_credentials(cutoff:)
-      PasswordCredential.where(email_verified_at: nil, created_at: ..cutoff)
+      PasswordCredential
+        .where(email_verified_at: nil, created_at: ..cutoff)
+        .where.not(user_id: ExternalIdentity.select(:user_id))
     end
 
     def destroy_registration_if_still_eligible(credential_id, cutoff:)
@@ -20,7 +22,10 @@ class CleanupStaleRegistrationsJob < ApplicationJob
         credential = eligible_credentials(cutoff:).lock.find_by(id: credential_id)
         next unless credential
 
-        User.lock.find(credential.user_id).destroy!
+        user = User.lock.find(credential.user_id)
+        next if user.external_identities.exists?
+
+        user.destroy!
       end
     end
 end
