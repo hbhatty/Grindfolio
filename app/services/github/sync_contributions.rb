@@ -9,20 +9,23 @@ module Github
     Result = Data.define(:from_date, :to_date, :days_synchronized, :synced_at)
 
     RECONCILIATION_DAYS = 30
-    STORED_ERROR_MESSAGE = "GitHub synchronization failed. Reauthorize GitHub or try again."
+    STORED_ERROR_MESSAGE = "GitHub activity could not be updated. Try again."
+    REAUTHORIZATION_REQUIRED_MESSAGE = "Reconnect GitHub to continue updating activity."
 
     def initialize(
       connection:,
       today: nil,
       now: Time.current,
       calendar_client: Github::ContributionCalendar,
-      access_token_client: Github::AccessToken
+      access_token_client: Github::AccessToken,
+      require_queued: false
     )
       @connection = connection
       @now = now
       @today = (today || default_today).to_date
       @calendar_client = calendar_client
       @access_token_client = access_token_client
+      @require_queued = require_queued
       @sync_started = false
     end
 
@@ -38,7 +41,7 @@ module Github
       mark_failed!(error)
       raise
     rescue Github::AccessToken::ReauthorizationRequired => error
-      mark_failed!(error)
+      mark_failed!(error, status: "reauthorization_required")
       raise ReauthorizationRequired, "GitHub reauthorization is required", cause: error
     rescue Github::ContributionCalendar::Error,
       Github::AccessToken::Error,
@@ -52,7 +55,7 @@ module Github
     end
 
     private
-      attr_reader :connection, :today, :now, :calendar_client, :access_token_client
+      attr_reader :connection, :today, :now, :calendar_client, :access_token_client, :require_queued
 
       def default_today
         now.in_time_zone(connection.user.time_zone.presence || "UTC").to_date
@@ -60,7 +63,13 @@ module Github
 
       def start_sync!
         connection.with_lock do
-          raise AlreadySyncing, "GitHub connection is already synchronizing" if connection.sync_status_syncing?
+          if require_queued
+            unless connection.sync_status_queued?
+              raise AlreadySyncing, "GitHub connection is no longer queued"
+            end
+          elsif connection.sync_status_queued? || connection.sync_status_syncing?
+            raise AlreadySyncing, "GitHub connection is already scheduled or synchronizing"
+          end
 
           connection.update_columns(
             sync_status: "syncing",
@@ -166,12 +175,16 @@ module Github
         )
       end
 
-      def mark_failed!(error)
+      def mark_failed!(error, status: "error")
         return unless @sync_started
 
+        stored_message = status == "reauthorization_required" ?
+          REAUTHORIZATION_REQUIRED_MESSAGE :
+          STORED_ERROR_MESSAGE
+
         GithubConnection.where(id: connection.id, sync_status: "syncing").update_all(
-          sync_status: "error",
-          last_sync_error: STORED_ERROR_MESSAGE,
+          sync_status: status,
+          last_sync_error: stored_message,
           updated_at: now
         )
         connection.reload

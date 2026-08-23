@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_23_043000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_23_060000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -44,7 +44,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_23_043000) do
     t.date "tracking_started_on", null: false
     t.datetime "updated_at", null: false
     t.index ["external_identity_id"], name: "index_github_connections_on_external_identity_id", unique: true
-    t.check_constraint "sync_status::text = ANY (ARRAY['pending'::character varying, 'syncing'::character varying, 'ready'::character varying, 'error'::character varying]::text[])", name: "github_connections_valid_sync_status"
+    t.check_constraint "sync_status::text = ANY (ARRAY['pending'::character varying, 'queued'::character varying, 'syncing'::character varying, 'ready'::character varying, 'error'::character varying, 'reauthorization_required'::character varying]::text[])", name: "github_connections_valid_sync_status"
   end
 
   create_table "github_daily_contributions", force: :cascade do |t|

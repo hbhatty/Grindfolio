@@ -1,0 +1,6 @@
+<%= turbo_frame_tag "github_provider" do %>
+  <%= render "home/provider_card",
+    provider: { key: :github, name: "GitHub", purpose: "Build activity", short_name: "GH", tone: "green" },
+    github_connection: @github_connection,
+    github_identity: @github_identity %>
+<% end %>

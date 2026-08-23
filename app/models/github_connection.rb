@@ -11,9 +11,11 @@ class GithubConnection < ApplicationRecord
   enum :sync_status,
     {
       pending: "pending",
+      queued: "queued",
       syncing: "syncing",
       ready: "ready",
-      error: "error"
+      error: "error",
+      reauthorization_required: "reauthorization_required"
     },
     prefix: true,
     validate: true

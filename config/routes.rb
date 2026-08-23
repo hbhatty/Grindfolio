@@ -9,6 +9,8 @@ Rails.application.routes.draw do
 
   resource :account, only: %i[show update]
 
+  resource :github_activity_update, only: %i[show create]
+
   get "sign_up", to: "signups#new", as: :sign_up
   post "sign_up", to: "signups#create"
   get "sign_up/success", to: "signups#success", as: :sign_up_success

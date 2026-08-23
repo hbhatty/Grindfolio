@@ -201,8 +201,8 @@ class Github::SyncContributionsTest < ActiveSupport::TestCase
 
     assert_equal "GitHub reauthorization is required", error.message
     assert_empty calendar.calls
-    assert_predicate @connection, :sync_status_error?
-    assert_equal Github::SyncContributions::STORED_ERROR_MESSAGE, @connection.last_sync_error
+    assert_predicate @connection, :sync_status_reauthorization_required?
+    assert_equal Github::SyncContributions::REAUTHORIZATION_REQUIRED_MESSAGE, @connection.last_sync_error
     assert_not_includes @connection.last_sync_error, "provider details"
   end
 
@@ -218,14 +218,41 @@ class Github::SyncContributionsTest < ActiveSupport::TestCase
     assert_predicate @connection, :sync_status_syncing?
   end
 
+  test "runs a queued request only through the durable queued transition" do
+    @connection.update!(sync_status: "queued")
+    calendar = FakeCalendarFactory.new(result: calendar_result)
+
+    sync(calendar:, require_queued: true)
+
+    assert_predicate @connection, :sync_status_ready?
+  end
+
+  test "does not let a direct synchronization race a queued job" do
+    @connection.update!(sync_status: "queued")
+    calendar = FakeCalendarFactory.new(result: calendar_result)
+
+    assert_raises Github::SyncContributions::AlreadySyncing do
+      sync(calendar:)
+    end
+
+    assert_empty calendar.calls
+    assert_predicate @connection, :sync_status_queued?
+  end
+
   private
-    def sync(calendar:, now: NOW, access_token: Github::AccessToken)
+    def sync(
+      calendar:,
+      now: NOW,
+      access_token: Github::AccessToken,
+      require_queued: false
+    )
       Github::SyncContributions.new(
         connection: @connection,
         today: TODAY,
         now:,
         calendar_client: calendar,
-        access_token_client: access_token
+        access_token_client: access_token,
+        require_queued:
       ).call
     end
 

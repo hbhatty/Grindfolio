@@ -100,6 +100,29 @@ class Github::ConnectAccountTest < ActiveSupport::TestCase
     assert_equal "new-access-token", connection.access_token
   end
 
+  test "successful reauthorization clears the required action without resetting history" do
+    user = User.create!
+    original = connect(user:, tracking_date: Date.new(2026, 8, 20))
+    original.update!(
+      sync_status: "reauthorization_required",
+      last_synced_at: Time.utc(2026, 8, 22, 13),
+      last_sync_error: Github::SyncContributions::REAUTHORIZATION_REQUIRED_MESSAGE
+    )
+
+    connection = connect(
+      user:,
+      authorization: authorization(
+        access_token: "new-access-token",
+        refresh_token: "new-refresh-token"
+      )
+    )
+
+    assert_predicate connection, :sync_status_ready?
+    assert_equal Time.utc(2026, 8, 22, 13), connection.last_synced_at
+    assert_nil connection.last_sync_error
+    assert_equal Date.new(2026, 8, 20), connection.tracking_started_on
+  end
+
   test "reauthorization replaces unreadable old ciphertext without resetting the connection" do
     user = User.create!
     original = connect(user:, tracking_date: Date.new(2026, 8, 20))

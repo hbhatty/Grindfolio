@@ -1,6 +1,12 @@
 <% key = provider.fetch(:key) %>
 <% status_label = if key == :github && github_connection
-  github_connection.sync_status_syncing? ? "Syncing" : github_connection.sync_status_error? ? "Sync error" : github_connection.sync_status_ready? ? "Synced" : "Connected"
+  case github_connection.sync_status
+  when "queued", "syncing" then "Updating"
+  when "reauthorization_required" then "Reconnect"
+  when "error" then "Update failed"
+  when "ready" then "Updated"
+  else "Not updated"
+  end
 end %>
 
 <article class="provider-card provider-card--<%= provider.fetch(:tone) %>" aria-labelledby="provider-<%= key %>-heading">

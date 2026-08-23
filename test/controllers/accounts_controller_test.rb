@@ -96,8 +96,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "dt", "Connected account"
     assert_select "dd", "octocat"
-    assert_select "dt", "Synchronization status"
-    assert_select "dd", "Pending"
+    assert_select ".account-provider-status--pending", "Not updated"
     assert_select "dt", "Tracking started"
     assert_select "dd", "August 22, 2026"
     assert_select "form[action='/auth/github'][method='post'][data-turbo='false']" do

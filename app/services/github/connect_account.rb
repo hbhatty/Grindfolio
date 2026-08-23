@@ -66,16 +66,22 @@ module Github
         connection = GithubConnection.lock.find_by(external_identity: identity)
         return create_connection!(identity) unless connection
 
-        # A fresh authorization can safely replace credentials even if an old
-        # encryption key is no longer available. Avoid reading the old
-        # ciphertext while Rails serializes the newly authorized values.
-        connection.update_columns(
+        attributes = {
           access_token:,
           refresh_token:,
           access_token_expires_at:,
           refresh_token_expires_at: nil,
           updated_at: Time.current
-        )
+        }
+        if connection.sync_status_reauthorization_required?
+          attributes[:sync_status] = connection.last_synced_at? ? "ready" : "pending"
+          attributes[:last_sync_error] = nil
+        end
+
+        # A fresh authorization can safely replace credentials even if an old
+        # encryption key is no longer available. Avoid reading the old
+        # ciphertext while Rails serializes the newly authorized values.
+        connection.update_columns(attributes)
         connection
       end
 

@@ -52,6 +52,19 @@ class GithubConnectionTest < ActiveSupport::TestCase
     assert_includes duplicate.errors[:external_identity_id], "has already been taken"
   end
 
+  test "accepts every durable synchronization lifecycle state" do
+    identity = User.create!.external_identities.create!(provider: "github", provider_uid: "github-id")
+
+    %w[pending queued syncing ready error reauthorization_required].each do |status|
+      connection = identity.build_github_connection(
+        **connection_attributes,
+        sync_status: status
+      )
+
+      assert_predicate connection, :valid?, status
+    end
+  end
+
   test "rejects an unsupported synchronization status" do
     identity = User.create!.external_identities.create!(provider: "github", provider_uid: "github-id")
     connection = identity.build_github_connection(
