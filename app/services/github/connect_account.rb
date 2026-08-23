@@ -73,6 +73,7 @@ module Github
           access_token:,
           refresh_token:,
           access_token_expires_at:,
+          refresh_token_expires_at: nil,
           updated_at: Time.current
         )
         connection

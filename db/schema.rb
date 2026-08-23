@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_22_223000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_23_043000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -39,6 +39,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_22_223000) do
     t.text "last_sync_error"
     t.datetime "last_synced_at"
     t.text "refresh_token", null: false
+    t.datetime "refresh_token_expires_at"
     t.string "sync_status", default: "pending", null: false
     t.date "tracking_started_on", null: false
     t.datetime "updated_at", null: false

@@ -4,6 +4,7 @@ module Github
     class AlreadySyncing < Error; end
     class IdentityMismatch < Error; end
     class InvalidCalendar < Error; end
+    class ReauthorizationRequired < Error; end
 
     Result = Data.define(:from_date, :to_date, :days_synchronized, :synced_at)
 
@@ -14,12 +15,14 @@ module Github
       connection:,
       today: nil,
       now: Time.current,
-      calendar_client: Github::ContributionCalendar
+      calendar_client: Github::ContributionCalendar,
+      access_token_client: Github::AccessToken
     )
       @connection = connection
       @now = now
       @today = (today || default_today).to_date
       @calendar_client = calendar_client
+      @access_token_client = access_token_client
       @sync_started = false
     end
 
@@ -34,7 +37,11 @@ module Github
     rescue IdentityMismatch, InvalidCalendar => error
       mark_failed!(error)
       raise
+    rescue Github::AccessToken::ReauthorizationRequired => error
+      mark_failed!(error)
+      raise ReauthorizationRequired, "GitHub reauthorization is required", cause: error
     rescue Github::ContributionCalendar::Error,
+      Github::AccessToken::Error,
       ActiveRecord::ActiveRecordError,
       ActiveRecord::Encryption::Errors::Decryption,
       KeyError,
@@ -45,7 +52,7 @@ module Github
     end
 
     private
-      attr_reader :connection, :today, :now, :calendar_client
+      attr_reader :connection, :today, :now, :calendar_client, :access_token_client
 
       def default_today
         now.in_time_zone(connection.user.time_zone.presence || "UTC").to_date
@@ -66,7 +73,7 @@ module Github
 
       def fetch_calendar
         calendar_client.new(
-          access_token: connection.access_token,
+          access_token: access_token_client.new(connection:, now:).call,
           from_date: from_date - 1.day,
           to_date: today + 1.day
         ).call

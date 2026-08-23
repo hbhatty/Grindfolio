@@ -22,6 +22,7 @@ class Github::ConnectAccountTest < ActiveSupport::TestCase
     assert_equal "access-token", connection.access_token
     assert_equal "refresh-token", connection.refresh_token
     assert_equal Time.utc(2026, 8, 22, 20), connection.access_token_expires_at
+    assert_nil connection.refresh_token_expires_at
     assert_empty connection.daily_contributions
   end
 
@@ -48,7 +49,10 @@ class Github::ConnectAccountTest < ActiveSupport::TestCase
   test "reauthorization updates metadata and credentials without duplicating or resetting tracking" do
     user = User.create!
     original = connect(user:, tracking_date: Date.new(2026, 8, 20))
-    original.update!(sync_status: "ready")
+    original.update!(
+      sync_status: "ready",
+      refresh_token_expires_at: Time.utc(2027, 2, 20)
+    )
 
     updated_authorization = authorization(
       nickname: "monalisa",
@@ -73,6 +77,7 @@ class Github::ConnectAccountTest < ActiveSupport::TestCase
     assert_equal "new-access-token", connection.access_token
     assert_equal "new-refresh-token", connection.refresh_token
     assert_equal Time.utc(2026, 8, 23, 20), connection.access_token_expires_at
+    assert_nil connection.refresh_token_expires_at
     assert_predicate connection, :sync_status_ready?
     assert_nil connection.last_sync_error
   end
