@@ -24,10 +24,8 @@ Rails.application.routes.draw do
   get "email_verification/:token", to: "email_verifications#show", as: :email_verification
   post "email_verification/:token/confirm", to: "email_verifications#confirm", as: :confirm_email_verification
 
-  if Rails.env.local?
-    get "auth/github/callback", to: "github_authorization_probes#show", as: :github_authorization_probe
-    get "auth/failure", to: "github_authorization_probes#failure", as: :github_authorization_failure
-  end
+  get "auth/github/callback", to: "github_connections#callback", as: :github_connection_callback
+  get "auth/failure", to: "github_connections#failure", as: :github_connection_failure
 
   if Rails.env.development?
     mount LetterOpenerWeb::Engine, at: "/letter_opener"

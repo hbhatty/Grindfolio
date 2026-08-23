@@ -5,13 +5,13 @@ class ExternalIdentityTest < ActiveSupport::TestCase
     user = User.create!
     identity = user.external_identities.create!(
       provider: "github",
-      provider_uid: "104801225",
-      provider_username: "hbhatty"
+      provider_uid: "42",
+      provider_username: "octocat"
     )
 
     assert_equal user, identity.user
-    assert_equal "104801225", identity.provider_uid
-    assert_equal "hbhatty", identity.provider_username
+    assert_equal "42", identity.provider_uid
+    assert_equal "octocat", identity.provider_username
   end
 
   test "one provider account cannot belong to two Gridfolio users" do
@@ -19,11 +19,11 @@ class ExternalIdentityTest < ActiveSupport::TestCase
     second_user = User.create!
     first_user.external_identities.create!(
       provider: "github",
-      provider_uid: "104801225"
+      provider_uid: "42"
     )
     duplicate = second_user.external_identities.build(
       provider: "github",
-      provider_uid: "104801225"
+      provider_uid: "42"
     )
 
     assert_not duplicate.valid?

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_22_204500) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_22_223000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -32,10 +32,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_22_204500) do
   end
 
   create_table "github_connections", force: :cascade do |t|
+    t.text "access_token", null: false
+    t.datetime "access_token_expires_at", null: false
     t.datetime "created_at", null: false
     t.bigint "external_identity_id", null: false
     t.text "last_sync_error"
     t.datetime "last_synced_at"
+    t.text "refresh_token", null: false
     t.string "sync_status", default: "pending", null: false
     t.date "tracking_started_on", null: false
     t.datetime "updated_at", null: false

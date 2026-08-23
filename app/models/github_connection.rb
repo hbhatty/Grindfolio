@@ -1,4 +1,7 @@
 class GithubConnection < ApplicationRecord
+  encrypts :access_token
+  encrypts :refresh_token
+
   belongs_to :external_identity
   has_many :daily_contributions,
     class_name: "GithubDailyContribution",
@@ -16,6 +19,7 @@ class GithubConnection < ApplicationRecord
     validate: true
 
   validates :external_identity_id, uniqueness: true
+  validates :access_token, :refresh_token, :access_token_expires_at, presence: true
   validates :tracking_started_on, presence: true
   validate :identity_is_github
 

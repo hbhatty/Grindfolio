@@ -45,7 +45,12 @@ class UserTest < ActiveSupport::TestCase
   test "destroys its external identities and their GitHub activity" do
     user = User.create!
     identity = user.external_identities.create!(provider: "github", provider_uid: "github-id")
-    connection = identity.create_github_connection!(tracking_started_on: Date.new(2026, 8, 22))
+    connection = identity.create_github_connection!(
+      tracking_started_on: Date.new(2026, 8, 22),
+      access_token: "access-token",
+      refresh_token: "refresh-token",
+      access_token_expires_at: Time.utc(2026, 8, 22, 20)
+    )
     contribution = connection.daily_contributions.create!(
       activity_date: Date.new(2026, 8, 22),
       contribution_count: 1

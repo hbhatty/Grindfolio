@@ -42,20 +42,32 @@
 
   <section aria-labelledby="provider-connections-heading">
     <h2 id="provider-connections-heading">Provider connections</h2>
-    <p>Provider connections are not stored yet. The local GitHub authorization probe makes one read-only request and discards its tokens and results.</p>
+    <p>Connect the accounts Gridfolio will use for your private activity dashboard.</p>
 
     <ul>
       <li>
         <h3>GitHub</h3>
         <p>Build activity</p>
-        <% if Rails.env.local? %>
-          <%= button_to "Test GitHub authorization",
+        <% if @github_connection %>
+          <dl>
+            <dt>Connected account</dt>
+            <dd><%= @github_identity.provider_username %></dd>
+            <dt>Synchronization status</dt>
+            <dd><%= @github_connection.sync_status.humanize %></dd>
+            <dt>Tracking started</dt>
+            <dd><%= @github_connection.tracking_started_on.to_fs(:long) %></dd>
+          </dl>
+          <%= button_to "Reauthorize GitHub",
             "/auth/github",
             method: :post,
             form: { data: { turbo: false } } %>
-          <p>This probe does not connect or save the account.</p>
+          <p>Reauthorizing updates the secure GitHub credentials without resetting the tracking date.</p>
         <% else %>
-          <button type="button" disabled>Connect GitHub — Coming soon</button>
+          <%= button_to "Connect GitHub",
+            "/auth/github",
+            method: :post,
+            form: { data: { turbo: false } } %>
+          <p>Connecting proves account ownership and securely saves authorization for later synchronization.</p>
         <% end %>
       </li>
       <li>

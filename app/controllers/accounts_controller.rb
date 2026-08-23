@@ -19,6 +19,8 @@ class AccountsController < ApplicationController
       @user = Current.user
       credential = @user.password_credential
       @verified_email_address = credential.email_address if credential&.email_verified_at?
+      @github_identity = @user.external_identities.github.includes(:github_connection).first
+      @github_connection = @github_identity&.github_connection
     end
 
     def account_params

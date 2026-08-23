@@ -3,8 +3,15 @@ require "test_helper"
 class AccountsControllerTest < ActionDispatch::IntegrationTest
   PASSWORD = "correct horse battery staple"
 
-  setup { Current.reset }
-  teardown { Current.reset }
+  setup do
+    Current.reset
+    Rails.cache.clear
+  end
+
+  teardown do
+    Current.reset
+    Rails.cache.clear
+  end
 
   test "requires authentication to view the account" do
     get account_path
@@ -51,7 +58,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     assert_select "p", text: /account and activity are private/i
   end
 
-  test "shows a local GitHub probe and two clearly unavailable provider connections" do
+  test "shows a GitHub connection action and two clearly unavailable provider connections" do
     sign_in_as(create_verified_user(email_address: "developer@example.com"))
 
     get account_path
@@ -59,7 +66,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "section[aria-labelledby='provider-connections-heading']" do
       assert_select "form[action='/auth/github'][method='post'][data-turbo='false']" do
-        assert_select "button[type='submit']", "Test GitHub authorization"
+        assert_select "button[type='submit']", "Connect GitHub"
       end
       assert_select "button[type='button'][disabled]", count: 2
       assert_select "button[disabled]", "Connect LeetCode — Coming soon"
@@ -67,6 +74,37 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
       assert_select "a[href*='leetcode']", count: 0
       assert_select "a[href*='notion']", count: 0
     end
+  end
+
+  test "shows the current GitHub account, pending status, and reauthorization action" do
+    user = create_verified_user(email_address: "developer@example.com")
+    identity = user.external_identities.create!(
+      provider: "github",
+      provider_uid: "42",
+      provider_username: "octocat"
+    )
+    identity.create_github_connection!(
+      tracking_started_on: Date.new(2026, 8, 22),
+      access_token: "access-token",
+      refresh_token: "refresh-token",
+      access_token_expires_at: Time.utc(2026, 8, 22, 20)
+    )
+    sign_in_as(user)
+
+    get account_path
+
+    assert_response :success
+    assert_select "dt", "Connected account"
+    assert_select "dd", "octocat"
+    assert_select "dt", "Synchronization status"
+    assert_select "dd", "Pending"
+    assert_select "dt", "Tracking started"
+    assert_select "dd", "August 22, 2026"
+    assert_select "form[action='/auth/github'][method='post'][data-turbo='false']" do
+      assert_select "button[type='submit']", "Reauthorize GitHub"
+    end
+    assert_not_includes response.body, "access-token"
+    assert_not_includes response.body, "refresh-token"
   end
 
   test "updates only the current user's time zone" do

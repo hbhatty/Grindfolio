@@ -4,7 +4,12 @@ class GithubDailyContributionTest < ActiveSupport::TestCase
   setup do
     user = User.create!
     identity = user.external_identities.create!(provider: "github", provider_uid: "github-id")
-    @connection = identity.create_github_connection!(tracking_started_on: Date.new(2026, 8, 22))
+    @connection = identity.create_github_connection!(
+      tracking_started_on: Date.new(2026, 8, 22),
+      access_token: "access-token",
+      refresh_token: "refresh-token",
+      access_token_expires_at: Time.utc(2026, 8, 22, 20)
+    )
   end
 
   test "stores one official daily count and level on or after tracking starts" do
