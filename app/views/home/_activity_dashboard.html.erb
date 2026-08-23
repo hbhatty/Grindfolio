@@ -1,0 +1,117 @@
+<% activity_cards = [
+  { key: :github, name: "GitHub", purpose: "Build activity", short_name: "GH", tone: "green" },
+  { key: :leetcode, name: "LeetCode", purpose: "Practice activity", short_name: "LC", tone: "blue", placeholder: "Submission tracking will appear here." },
+  { key: :notion, name: "Notion", purpose: "Job applications", short_name: "N", tone: "orange", placeholder: "Application tracking will appear here." }
+] %>
+
+<main class="dashboard-shell" data-controller="heatmap">
+  <header class="dashboard-header">
+    <div>
+      <h1>Activity</h1>
+      <p class="dashboard-intro">Build · Practice · Apply</p>
+    </div>
+    <div class="dashboard-actions">
+      <span class="dashboard-private"><span aria-hidden="true"></span>Private workspace</span>
+      <%= link_to "Account", account_path, class: "dashboard-link" %>
+      <%= button_to "Sign out", sign_out_path, method: :delete, class: "dashboard-sign-out" %>
+    </div>
+  </header>
+
+  <section class="provider-grid" aria-label="Activity providers">
+    <% activity_cards.each do |provider| %>
+      <%= render "provider_card", provider:, github_connection: @github_connection, github_identity: @github_identity %>
+    <% end %>
+  </section>
+
+  <section class="heatmap-card" aria-labelledby="build-heatmap-heading">
+    <div class="heatmap-card-header">
+      <div>
+        <p class="heatmap-kicker">Build</p>
+        <h2 id="build-heatmap-heading">GitHub activity</h2>
+        <p class="heatmap-caption">Official daily totals retain the calendar dates assigned by GitHub.</p>
+      </div>
+      <div class="heatmap-sync">
+        <% if @github_connection&.sync_status_syncing? %>
+          Syncing GitHub activity
+        <% elsif @github_connection&.sync_status_error? %>
+          GitHub sync failed
+        <% elsif @github_connection&.last_synced_at %>
+          <% local_sync_time = @github_connection.last_synced_at.in_time_zone(@display_time_zone) %>
+          Last synced <%= time_tag local_sync_time, local_sync_time.to_fs(:short) %> <%= local_sync_time.zone %>
+        <% elsif @github_connection %>
+          Waiting for first sync
+        <% else %>
+          Not connected
+        <% end %>
+      </div>
+    </div>
+
+    <div class="heatmap-months" aria-hidden="true">
+      <% previous_month = nil %>
+      <% (@heatmap_start_date..@heatmap_end_date).to_a.each_with_index do |date, index| %>
+        <% month_key = date.strftime("%Y-%m") %>
+        <% if month_key != previous_month && date.day <= 7 %>
+          <span style="grid-column: <%= (index / 7) + 2 %>;"><%= date.strftime("%b") %></span>
+          <% previous_month = month_key %>
+        <% end %>
+      <% end %>
+    </div>
+
+    <div class="heatmap-grid" role="grid" aria-label="GitHub activity for the last year">
+      <div class="heatmap-weekdays" aria-hidden="true">
+        <span></span><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span>
+      </div>
+      <% (@heatmap_start_date..@heatmap_end_date).to_a.each_with_index do |date, index| %>
+        <% week = index / 7 %>
+        <% weekday = date.wday %>
+        <% contribution = @github_contributions[date] %>
+        <% count = contribution&.contribution_count %>
+        <% future = date > @github_today %>
+        <% untracked = @tracking_started_on.nil? || date < @tracking_started_on %>
+        <% pending = !future && !untracked && count.nil? %>
+        <% state = future ? "future" : untracked ? "untracked" : pending ? "pending" : "tracked" %>
+        <% level = {
+          "FIRST_QUARTILE" => "first",
+          "SECOND_QUARTILE" => "second",
+          "THIRD_QUARTILE" => "third",
+          "FOURTH_QUARTILE" => "fourth"
+        }.fetch(contribution&.contribution_level, "none") %>
+        <% label = if future
+          "#{date.to_fs(:long)}: future date"
+        elsif untracked
+          "#{date.to_fs(:long)}: not tracked"
+        elsif pending
+          "#{date.to_fs(:long)}: not synced yet"
+        else
+          noun = count == 1 ? "contribution" : "contributions"
+          "#{date.to_fs(:long)}: #{count} #{noun}"
+        end %>
+        <button
+          type="button"
+          class="heatmap-cell heatmap-cell--<%= state %> heatmap-cell--<%= level %>"
+          style="grid-column: <%= week + 2 %>; grid-row: <%= weekday + 1 %>;"
+          data-heatmap-target="day"
+          data-action="heatmap#select"
+          data-label="<%= date.to_fs(:long) %>"
+          data-count="<%= count || "—" %>"
+          data-state="<%= state %>"
+          aria-label="<%= label %>"
+          aria-pressed="<%= date == @github_today %>"></button>
+      <% end %>
+    </div>
+
+    <div class="heatmap-footer">
+      <div class="heatmap-legend" aria-label="Contribution intensity legend"><span>Less</span><i class="heatmap-swatch heatmap-swatch--none"></i><i class="heatmap-swatch heatmap-swatch--first"></i><i class="heatmap-swatch heatmap-swatch--second"></i><i class="heatmap-swatch heatmap-swatch--third"></i><i class="heatmap-swatch heatmap-swatch--fourth"></i><span>More</span></div>
+      <p><span class="heatmap-outline" aria-hidden="true"></span>Not tracked before connection</p>
+    </div>
+
+    <div class="heatmap-selected-day" aria-live="polite" aria-labelledby="selected-day-heading">
+      <div>
+        <p class="heatmap-selected-label">Selected day</p>
+        <h3 id="selected-day-heading" data-heatmap-target="date">Today</h3>
+        <p data-heatmap-target="message">Select a day to inspect what Gridfolio recorded.</p>
+      </div>
+      <div class="heatmap-selected-value"><strong data-heatmap-target="count">—</strong><span>contributions</span></div>
+    </div>
+  </section>
+</main>

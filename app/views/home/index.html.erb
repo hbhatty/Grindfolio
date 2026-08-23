@@ -1,14 +1,12 @@
 <% content_for :title, "Gridfolio" %>
 
-<main>
-  <h1>Gridfolio</h1>
-  <p>Your developer journey, mapped daily.</p>
-  <% if Current.user %>
-    <p>You are signed in.</p>
-    <p><%= link_to "Account", account_path %></p>
-    <%= button_to "Sign out", sign_out_path, method: :delete %>
-  <% else %>
+<% if Current.user %>
+  <%= render "activity_dashboard" %>
+<% else %>
+  <main class="marketing-home">
+    <h1>Gridfolio</h1>
+    <p>Your developer journey, mapped daily.</p>
     <p><%= link_to "Create an account", sign_up_path %></p>
     <p><%= link_to "Sign in", sign_in_path %></p>
-  <% end %>
-</main>
+  </main>
+<% end %>

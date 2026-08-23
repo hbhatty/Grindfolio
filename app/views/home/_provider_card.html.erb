@@ -1,0 +1,32 @@
+<% key = provider.fetch(:key) %>
+<% status_label = if key == :github && github_connection
+  github_connection.sync_status_syncing? ? "Syncing" : github_connection.sync_status_error? ? "Sync error" : github_connection.sync_status_ready? ? "Synced" : "Connected"
+end %>
+
+<article class="provider-card provider-card--<%= provider.fetch(:tone) %>" aria-labelledby="provider-<%= key %>-heading">
+  <div class="provider-card-heading">
+    <div class="provider-card-identity">
+      <span class="provider-icon" aria-hidden="true"><%= provider.fetch(:short_name) %></span>
+      <div>
+        <h2 id="provider-<%= key %>-heading"><%= provider.fetch(:name) %></h2>
+        <p><%= provider.fetch(:purpose) %></p>
+      </div>
+    </div>
+
+    <% if key == :github && github_connection %>
+      <span class="provider-status provider-status--<%= github_connection.sync_status %>"><span aria-hidden="true"></span><%= status_label %></span>
+    <% elsif key == :github %>
+      <%= button_to "Connect", "/auth/github", method: :post, form: { data: { turbo: false } }, class: "provider-action" %>
+    <% else %>
+      <span class="provider-coming-soon">Coming soon</span>
+    <% end %>
+  </div>
+
+  <% if key == :github && github_connection %>
+    <p class="provider-card-meta">Connected as <strong>@<%= github_identity.provider_username %></strong> · Tracking from <%= github_connection.tracking_started_on.to_fs(:long) %></p>
+  <% elsif key == :github %>
+    <p class="provider-card-meta">Starts tracking on connection day. Earlier commits are not imported.</p>
+  <% else %>
+    <p class="provider-card-meta"><%= provider.fetch(:placeholder) %></p>
+  <% end %>
+</article>

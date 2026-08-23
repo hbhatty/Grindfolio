@@ -4,7 +4,101 @@
  * With Propshaft, assets are served efficiently without preprocessing steps. You can still include
  * application-wide styles in this file, but keep in mind that CSS precedence will follow the standard
  * cascading order, meaning styles declared later in the document or manifest will override earlier ones,
- * depending on specificity.
+ * depending on their specificity.
  *
  * Consider organizing styles into separate files for maintainability.
  */
+
+:root {
+  color-scheme: light;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #18251f;
+  background: #f5f8f5;
+}
+
+body { background: #f5f8f5; margin: 0; }
+button, a, select, input { font: inherit; }
+
+.marketing-home { margin: 0 auto; max-width: 56rem; padding: 4rem 1.25rem; }
+.dashboard-shell { margin: 0 auto; max-width: 72rem; padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 4vw, 3rem); }
+.dashboard-header, .dashboard-actions, .heatmap-card-header, .heatmap-footer, .heatmap-legend, .heatmap-sync, .provider-card-heading, .provider-card-identity, .provider-status { align-items: center; display: flex; }
+.dashboard-header { align-items: flex-start; gap: 2rem; justify-content: space-between; }
+.dashboard-header h1 { font-size: clamp(1.7rem, 4vw, 2.2rem); letter-spacing: -0.055em; line-height: 1.05; margin: 0; }
+.dashboard-intro { color: #65746c; margin: 0.5rem 0 0; }
+.dashboard-actions { flex-wrap: wrap; gap: 0.9rem; justify-content: flex-end; }
+.dashboard-private { color: #6f7c75; font-size: 0.75rem; white-space: nowrap; }
+.dashboard-private span { background: #1a995b; border-radius: 50%; display: inline-block; height: 0.45rem; margin-right: 0.4rem; width: 0.45rem; }
+.dashboard-link { color: #166440; font-size: 0.8rem; font-weight: 650; text-decoration: none; }
+.dashboard-sign-out { background: transparent; border: 1px solid #c7d6cd; border-radius: 0.5rem; color: #205940; cursor: pointer; font-size: 0.78rem; font-weight: 650; padding: 0.55rem 0.75rem; }
+
+.provider-grid { display: grid; gap: 0.8rem; grid-template-columns: repeat(3, minmax(0, 1fr)); margin-top: 2rem; }
+.provider-card, .heatmap-card { background: #fff; border: 1px solid #dce7df; border-radius: 0.85rem; box-shadow: 0 10px 30px rgb(25 68 47 / 5%); }
+.provider-card { min-width: 0; padding: 1rem; }
+.provider-card-heading { align-items: flex-start; gap: 0.8rem; justify-content: space-between; }
+.provider-card-identity { gap: 0.7rem; min-width: 0; }
+.provider-icon { align-items: center; border-radius: 0.55rem; display: flex; flex: 0 0 auto; font-size: 0.68rem; font-weight: 800; height: 2rem; justify-content: center; width: 2rem; }
+.provider-card--green .provider-icon { background: #d9f1e1; color: #14623d; }
+.provider-card--blue .provider-icon { background: #dfeafa; color: #315d9f; }
+.provider-card--orange .provider-icon { background: #f8e8d5; color: #9b5e1f; }
+.provider-card h2 { font-size: 0.92rem; letter-spacing: -0.02em; margin: 0; }
+.provider-card-identity p { color: #718077; font-size: 0.72rem; margin: 0.15rem 0 0; }
+.provider-status { color: #197148; font-size: 0.7rem; gap: 0.35rem; white-space: nowrap; }
+.provider-status span { background: #1a995b; border-radius: 50%; height: 0.42rem; width: 0.42rem; }
+.provider-status--pending { color: #94702b; }
+.provider-status--pending span { background: #c89b3c; }
+.provider-status--error { color: #a44035; }
+.provider-status--error span { background: #c75b4c; }
+.provider-action { background: transparent; border: 1px solid #bdd4c6; border-radius: 0.45rem; color: #205940; cursor: pointer; font-size: 0.7rem; font-weight: 700; padding: 0.36rem 0.6rem; }
+.provider-coming-soon { color: #75837a; font-size: 0.68rem; white-space: nowrap; }
+.provider-card-meta { color: #718077; font-size: 0.7rem; line-height: 1.4; margin: 0.9rem 0 0; }
+.heatmap-card { margin-top: 1.15rem; padding: clamp(1rem, 3vw, 1.5rem); }
+.heatmap-card-header { align-items: flex-start; gap: 1rem; justify-content: space-between; }
+.heatmap-kicker { color: #127044; font-size: 0.72rem; font-weight: 750; letter-spacing: 0.12em; margin: 0 0 0.2rem; text-transform: uppercase; }
+.heatmap-card h2 { font-size: 1.1rem; letter-spacing: -0.03em; margin: 0; }
+.heatmap-caption, .heatmap-sync { color: #748179; font-size: 0.76rem; margin: 0.28rem 0 0; }
+.heatmap-sync { margin: 0; text-align: right; white-space: nowrap; }
+.heatmap-months { color: #87958d; display: grid; font-size: 0.65rem; grid-template-columns: 2rem repeat(53, minmax(0, 1fr)); margin: 1.5rem 0 0.3rem; min-height: 1rem; }
+.heatmap-months span { grid-row: 1; white-space: nowrap; }
+.heatmap-grid { display: grid; grid-template-columns: 2rem repeat(53, minmax(0, 1fr)); grid-template-rows: repeat(7, minmax(0, 1fr)); gap: clamp(0.12rem, 0.35vw, 0.25rem); width: 100%; }
+.heatmap-weekdays { color: #87958d; display: grid; font-size: 0.58rem; grid-column: 1; grid-row: 1 / span 7; grid-template-rows: repeat(7, minmax(0, 1fr)); line-height: 1; }
+.heatmap-weekdays span { align-items: center; display: flex; }
+.heatmap-cell { aspect-ratio: 1; background: #edf2ee; border: 0; border-radius: 0.2rem; cursor: pointer; min-width: 0; padding: 0; }
+.heatmap-cell--first { background: #c7e9d1; }
+.heatmap-cell--second { background: #8fd1a4; }
+.heatmap-cell--third { background: #4baa72; }
+.heatmap-cell--fourth { background: #177245; }
+.heatmap-cell--untracked { background: transparent; box-shadow: inset 0 0 0 1px #d5e0d8; }
+.heatmap-cell--pending { background: repeating-linear-gradient(135deg, #edf2ee, #edf2ee 0.2rem, #d8e3da 0.2rem, #d8e3da 0.35rem); }
+.heatmap-cell--future { background: transparent; opacity: 0.35; }
+.heatmap-cell[aria-pressed="true"] { box-shadow: 0 0 0 2px #fff, 0 0 0 4px #1a2e26; position: relative; z-index: 1; }
+.heatmap-cell:focus-visible { outline: 2px solid #1a995b; outline-offset: 2px; }
+.heatmap-footer { color: #7a877f; font-size: 0.68rem; justify-content: space-between; margin-top: 1.15rem; }
+.heatmap-legend { gap: 0.28rem; }
+.heatmap-swatch { background: #edf2ee; border-radius: 0.18rem; display: inline-block; height: 0.72rem; width: 0.72rem; }
+.heatmap-swatch--first { background: #c7e9d1; }
+.heatmap-swatch--second { background: #8fd1a4; }
+.heatmap-swatch--third { background: #4baa72; }
+.heatmap-swatch--fourth { background: #177245; }
+.heatmap-outline { border: 1px solid #d5e0d8; border-radius: 0.18rem; display: inline-block; height: 0.72rem; margin-right: 0.35rem; vertical-align: -0.15rem; width: 0.72rem; }
+.heatmap-footer p { margin: 0; }
+.heatmap-selected-day { align-items: flex-end; border-top: 1px solid #e4ece6; display: flex; justify-content: space-between; margin-top: 1.15rem; padding-top: 1rem; }
+.heatmap-selected-label { color: #127044; font-size: 0.66rem; font-weight: 750; letter-spacing: 0.1em; margin: 0 0 0.25rem; text-transform: uppercase; }
+.heatmap-selected-day h3 { font-size: 0.98rem; letter-spacing: -0.02em; margin: 0; }
+.heatmap-selected-day p:not(.heatmap-selected-label) { color: #748179; font-size: 0.74rem; margin: 0.25rem 0 0; }
+.heatmap-selected-value { text-align: right; }
+.heatmap-selected-value strong { display: block; font-size: 1.55rem; letter-spacing: -0.06em; line-height: 1; }
+.heatmap-selected-value span { color: #748179; font-size: 0.68rem; }
+
+@media (max-width: 650px) {
+  .dashboard-header { display: block; }
+  .dashboard-actions { justify-content: flex-start; margin-top: 1.25rem; }
+  .provider-grid { grid-template-columns: 1fr; }
+  .heatmap-card-header { display: block; }
+  .heatmap-sync { margin-top: 0.65rem; text-align: left; }
+  .heatmap-months, .heatmap-grid { grid-template-columns: 1.3rem repeat(53, minmax(0, 1fr)); }
+  .heatmap-weekdays { font-size: 0.5rem; }
+  .heatmap-footer { align-items: flex-start; display: block; }
+  .heatmap-footer p { margin-top: 0.65rem; }
+  .heatmap-selected-day { align-items: flex-start; display: block; }
+  .heatmap-selected-value { margin-top: 0.8rem; text-align: left; }
+}
