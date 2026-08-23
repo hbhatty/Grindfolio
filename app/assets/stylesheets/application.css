@@ -89,6 +89,65 @@ button, a, select, input { font: inherit; }
 .heatmap-selected-value strong { display: block; font-size: 1.55rem; letter-spacing: -0.06em; line-height: 1; }
 .heatmap-selected-value span { color: #748179; font-size: 0.68rem; }
 
+.account-shell { margin: 0 auto; max-width: 72rem; padding: clamp(1.5rem, 4vw, 3.5rem) clamp(1rem, 4vw, 3rem); }
+.account-header { align-items: flex-start; display: flex; gap: 2rem; justify-content: space-between; }
+.account-eyebrow, .account-section-label { color: #127044; font-size: 0.7rem; font-weight: 750; letter-spacing: 0.12em; margin: 0 0 0.45rem; text-transform: uppercase; }
+.account-header h1 { font-size: clamp(1.7rem, 4vw, 2.2rem); letter-spacing: -0.055em; line-height: 1.05; margin: 0; }
+.account-intro { color: #65746c; margin: 0.55rem 0 0; max-width: 38rem; }
+.account-back-link { color: #166440; font-size: 0.8rem; font-weight: 650; margin-top: 0.25rem; text-decoration: none; white-space: nowrap; }
+.account-layout { align-items: start; display: grid; gap: 1.15rem; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); margin-top: 2rem; }
+.account-card { background: #fff; border: 1px solid #dce7df; border-radius: 0.85rem; box-shadow: 0 10px 30px rgb(25 68 47 / 5%); min-width: 0; padding: clamp(1rem, 3vw, 1.4rem); }
+.account-card-heading { align-items: flex-start; display: flex; gap: 1rem; justify-content: space-between; }
+.account-section-label { margin-bottom: 0.2rem; }
+.account-card h2 { font-size: 1.08rem; letter-spacing: -0.03em; margin: 0; }
+.account-lock { background: #edf6ef; border-radius: 999px; color: #26724c; font-size: 0.68rem; padding: 0.25rem 0.5rem; white-space: nowrap; }
+.account-info, .account-connection-info { margin: 1.35rem 0 0; }
+.account-info > div, .account-connection-info > div { border-top: 1px solid #e4ece6; padding: 0.75rem 0; }
+.account-info > div { display: grid; gap: 0.15rem 0.5rem; grid-template-columns: minmax(0, 1fr) auto; }
+.account-info dt, .account-connection-info dt { color: #748179; font-size: 0.7rem; grid-column: 1 / -1; }
+.account-info dd, .account-connection-info dd { align-items: center; display: flex; font-size: 0.88rem; gap: 0.5rem; margin: 0.22rem 0 0; }
+.account-info .account-badge { align-self: end; grid-column: 2; grid-row: 2; }
+.account-badge { background: #e3f4e8; border-radius: 999px; color: #26724c; font-size: 0.63rem; font-weight: 700; padding: 0.2rem 0.45rem; }
+.account-form-heading { border-top: 1px solid #e4ece6; margin-top: 0.65rem; padding-top: 1.15rem; }
+.account-form-heading h3 { font-size: 0.88rem; margin: 0; }
+.account-form-heading p, .account-card-intro { color: #748179; font-size: 0.74rem; line-height: 1.45; margin: 0.3rem 0 0; }
+.account-form { margin-top: 1rem; }
+.account-form > div { display: grid; gap: 0.4rem; }
+.account-form label { font-size: 0.75rem; font-weight: 700; }
+.account-form select { background: #fff; border: 1px solid #c7d6cd; border-radius: 0.5rem; color: #18251f; min-height: 2.35rem; padding: 0.45rem 0.6rem; width: 100%; }
+.account-form select:focus { border-color: #1a995b; outline: 2px solid rgb(26 153 91 / 20%); outline-offset: 1px; }
+.account-form small { color: #748179; font-size: 0.68rem; line-height: 1.4; }
+.account-form input[type="submit"], .account-provider-action { background: #166440; border: 0; border-radius: 0.5rem; color: #fff; cursor: pointer; font-size: 0.75rem; font-weight: 700; margin-top: 1rem; padding: 0.62rem 0.85rem; }
+.account-errors { background: #fff4f1; border: 1px solid #efc8bf; border-radius: 0.55rem; color: #8b3f34; margin-top: 1rem; padding: 0.75rem 0.85rem; }
+.account-errors h3 { font-size: 0.75rem; margin: 0; }
+.account-errors ul { font-size: 0.72rem; margin: 0.35rem 0 0; padding-left: 1rem; }
+.account-card-intro { margin-top: 0.45rem; }
+.account-provider-list { display: grid; gap: 0.75rem; margin-top: 1.15rem; }
+.account-provider { border: 1px solid #dce7df; border-radius: 0.65rem; padding: 0.9rem; }
+.account-provider--github { border-color: #b9dbc4; }
+.account-provider--disabled { background: #fbfcfb; }
+.account-provider-topline { align-items: flex-start; display: flex; gap: 0.8rem; justify-content: space-between; }
+.account-provider-identity { align-items: center; display: flex; gap: 0.65rem; }
+.account-provider-icon { align-items: center; background: #d9f1e1; border-radius: 0.5rem; color: #14623d; display: flex; font-size: 0.65rem; font-weight: 800; height: 1.9rem; justify-content: center; width: 1.9rem; }
+.account-provider--disabled .account-provider-icon { background: #edf1ee; color: #748179; }
+.account-provider h3 { font-size: 0.86rem; letter-spacing: -0.02em; margin: 0; }
+.account-provider-identity p { color: #718077; font-size: 0.7rem; margin: 0.12rem 0 0; }
+.account-provider-status { color: #75837a; font-size: 0.68rem; white-space: nowrap; }
+.account-provider-status--pending { color: #94702b; }
+.account-provider-status--ready { color: #197148; }
+.account-provider-status--ready span, .account-provider-status--pending span, .account-provider-status--syncing span, .account-provider-status--error span { border-radius: 50%; display: inline-block; height: 0.4rem; margin-right: 0.3rem; width: 0.4rem; }
+.account-provider-status--ready span, .account-provider-status--syncing span { background: #1a995b; }
+.account-provider-status--pending span { background: #c89b3c; }
+.account-provider-status--error { color: #a44035; }
+.account-provider-status--error span { background: #c75b4c; }
+.account-connection-info { display: grid; gap: 0.65rem; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.account-connection-info > div { padding: 0.65rem 0 0; }
+.account-connection-info dd { font-size: 0.76rem; }
+.account-provider-action { margin-top: 0.25rem; }
+.account-provider-help { color: #748179; font-size: 0.7rem; line-height: 1.4; margin: 0.8rem 0 0; }
+.account-provider--disabled button[disabled] { background: #f0f3f1; border: 1px solid #dce4de; border-radius: 0.45rem; color: #849088; cursor: not-allowed; font-size: 0.68rem; margin-top: 0.75rem; padding: 0.48rem 0.6rem; }
+.account-privacy-note { color: #748179; font-size: 0.7rem; margin: 1.25rem 0 0; }
+
 @media (max-width: 650px) {
   .dashboard-header { display: block; }
   .dashboard-actions { justify-content: flex-start; margin-top: 1.25rem; }
@@ -101,4 +160,8 @@ button, a, select, input { font: inherit; }
   .heatmap-footer p { margin-top: 0.65rem; }
   .heatmap-selected-day { align-items: flex-start; display: block; }
   .heatmap-selected-value { margin-top: 0.8rem; text-align: left; }
+  .account-header { display: block; }
+  .account-back-link { display: inline-block; margin-top: 1.25rem; }
+  .account-layout { grid-template-columns: 1fr; }
+  .account-connection-info { grid-template-columns: 1fr; }
 }
