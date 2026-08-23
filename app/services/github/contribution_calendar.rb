@@ -2,13 +2,12 @@ require "json"
 require "net/http"
 
 module Github
-  class ContributionProbe
+  class ContributionCalendar
     class Error < StandardError; end
 
     ENDPOINT = URI("https://api.github.com/graphql").freeze
-    WINDOW_DAYS = 30
     QUERY = <<~GRAPHQL.freeze
-      query GridfolioGitHubAppProbe($from: DateTime!, $to: DateTime!) {
+      query GridfolioContributionCalendar($from: DateTime!, $to: DateTime!) {
         viewer {
           id
           databaseId
@@ -23,6 +22,7 @@ module Github
                 contributionDays {
                   date
                   contributionCount
+                  contributionLevel
                 }
               }
             }
@@ -36,11 +36,13 @@ module Github
       }
     GRAPHQL
 
-    def initialize(access_token:, today: Time.current.utc.to_date, http: Net::HTTP)
+    def initialize(access_token:, from_date:, to_date:, http: Net::HTTP)
       @access_token = access_token
-      @to_date = today
-      @from_date = today - (WINDOW_DAYS - 1).days
+      @from_date = from_date.to_date
+      @to_date = to_date.to_date
       @http = http
+
+      raise ArgumentError, "GitHub calendar start must not follow its end" if @from_date > @to_date
     end
 
     def call
@@ -51,7 +53,7 @@ module Github
       raise Error, graphql_error_message(payload) if payload["errors"].present?
 
       build_result(payload.fetch("data"))
-    rescue JSON::ParserError, KeyError => error
+    rescue JSON::ParserError, KeyError, Date::Error, TypeError => error
       raise Error, "GitHub returned an unexpected response", cause: error
     end
 
@@ -63,7 +65,7 @@ module Github
         request["Accept"] = "application/vnd.github+json"
         request["Authorization"] = "Bearer #{access_token}"
         request["Content-Type"] = "application/json"
-        request["User-Agent"] = "Gridfolio-Development-Probe"
+        request["User-Agent"] = "Gridfolio"
         request.body = JSON.generate(
           query: QUERY,
           variables: {
@@ -102,8 +104,16 @@ module Github
           ended_at: collection.fetch("endedAt"),
           total_contributions: calendar.fetch("totalContributions"),
           restricted_contributions: collection.fetch("restrictedContributionsCount"),
-          days: days,
+          days: days.map { |day| build_day(day) },
           rate_limit: data.fetch("rateLimit")
+        }
+      end
+
+      def build_day(day)
+        {
+          activity_date: Date.iso8601(day.fetch("date")),
+          contribution_count: Integer(day.fetch("contributionCount")),
+          contribution_level: day.fetch("contributionLevel")
         }
       end
   end

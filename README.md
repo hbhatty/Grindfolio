@@ -13,9 +13,10 @@ Gridfolio is an early Rails application for tracking developer consistency acros
 - A protected account page with IANA time-zone selection
 - A persisted GitHub connection flow with encrypted renewable OAuth credentials
 - Provider-independent external identities plus GitHub connection and daily-contribution tables
+- Manual GitHub contribution-calendar synchronization with authoritative daily upserts
 - Automated controller, model, job, mailer, and service tests
 
-The earlier GitHub probe confirmed that authorization and daily contribution retrieval work. The current connection flow saves GitHub identity and encrypted credentials, but contribution synchronization, daily activity persistence, and the heatmap remain later checkpoints.
+The GitHub connection flow saves identity and encrypted credentials. A manually invoked synchronization service now persists official daily totals from the connection date forward; background jobs, automatic refresh triggers, token rotation, and the heatmap remain later checkpoints.
 
 ## Local development
 
