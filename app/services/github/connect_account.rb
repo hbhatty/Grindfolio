@@ -4,10 +4,10 @@ module Github
     class IdentityAlreadyConnected < Error; end
     class DifferentIdentityAlreadyConnected < Error; end
 
-    def initialize(user:, authorization:, tracking_date: Time.current.utc.to_date)
+    def initialize(user:, authorization:, tracking_date: nil)
       @user = user
       @authorization = authorization
-      @tracking_date = tracking_date
+      @tracking_date = tracking_date || default_tracking_date
     end
 
     def call
@@ -26,6 +26,10 @@ module Github
 
     private
       attr_reader :user, :authorization, :tracking_date
+
+      def default_tracking_date
+        Time.current.in_time_zone(user.time_zone.presence || "UTC").to_date
+      end
 
       def validate_authorization!
         return if provider_uid.present? && provider_username.present? &&

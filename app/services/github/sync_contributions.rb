@@ -12,13 +12,13 @@ module Github
 
     def initialize(
       connection:,
-      today: Time.current.utc.to_date,
+      today: nil,
       now: Time.current,
       calendar_client: Github::ContributionCalendar
     )
       @connection = connection
-      @today = today.to_date
       @now = now
+      @today = (today || default_today).to_date
       @calendar_client = calendar_client
       @sync_started = false
     end
@@ -47,6 +47,10 @@ module Github
     private
       attr_reader :connection, :today, :now, :calendar_client
 
+      def default_today
+        now.in_time_zone(connection.user.time_zone.presence || "UTC").to_date
+      end
+
       def start_sync!
         connection.with_lock do
           raise AlreadySyncing, "GitHub connection is already synchronizing" if connection.sync_status_syncing?
@@ -63,8 +67,8 @@ module Github
       def fetch_calendar
         calendar_client.new(
           access_token: connection.access_token,
-          from_date:,
-          to_date: today
+          from_date: from_date - 1.day,
+          to_date: today + 1.day
         ).call
       end
 

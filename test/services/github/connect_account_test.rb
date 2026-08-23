@@ -25,6 +25,26 @@ class Github::ConnectAccountTest < ActiveSupport::TestCase
     assert_empty connection.daily_contributions
   end
 
+  test "defaults the tracking date to the user's selected time zone" do
+    travel_to Time.utc(2026, 8, 23, 0, 6) do
+      user = User.create!(time_zone: "America/Toronto")
+
+      connection = Github::ConnectAccount.new(user:, authorization: authorization).call
+
+      assert_equal Date.new(2026, 8, 22), connection.tracking_started_on
+    end
+  end
+
+  test "defaults the tracking date to UTC when the user has no selected time zone" do
+    travel_to Time.utc(2026, 8, 23, 0, 6) do
+      user = User.create!
+
+      connection = Github::ConnectAccount.new(user:, authorization: authorization).call
+
+      assert_equal Date.new(2026, 8, 23), connection.tracking_started_on
+    end
+  end
+
   test "reauthorization updates metadata and credentials without duplicating or resetting tracking" do
     user = User.create!
     original = connect(user:, tracking_date: Date.new(2026, 8, 20))
@@ -144,7 +164,7 @@ class Github::ConnectAccountTest < ActiveSupport::TestCase
     assert_no_difference -> { ExternalIdentity.count } do
       assert_no_difference -> { GithubConnection.count } do
         assert_raises Github::ConnectAccount::Error do
-          connect(user:, tracking_date: nil)
+          connect(user:, tracking_date: "not-a-date")
         end
       end
     end

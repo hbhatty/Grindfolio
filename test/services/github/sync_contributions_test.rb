@@ -64,8 +64,8 @@ class Github::SyncContributionsTest < ActiveSupport::TestCase
     assert_nil @connection.last_sync_error
     assert_equal "octocat", @identity.reload.provider_username
     assert_equal "access-token", calendar.calls.first.fetch(:access_token)
-    assert_equal Date.new(2026, 8, 21), calendar.calls.first.fetch(:from_date)
-    assert_equal TODAY, calendar.calls.first.fetch(:to_date)
+    assert_equal Date.new(2026, 8, 20), calendar.calls.first.fetch(:from_date)
+    assert_equal TODAY + 1.day, calendar.calls.first.fetch(:to_date)
   end
 
   test "a retry updates authoritative totals instead of duplicating or adding them" do
@@ -99,8 +99,35 @@ class Github::SyncContributionsTest < ActiveSupport::TestCase
     result = sync(calendar:)
 
     assert_equal TODAY - 29.days, result.from_date
-    assert_equal TODAY - 29.days, calendar.calls.first.fetch(:from_date)
+    assert_equal TODAY - 30.days, calendar.calls.first.fetch(:from_date)
     assert GithubDailyContribution.exists?(old_day.id)
+  end
+
+  test "uses the user's local date and keeps only returned dates inside that window" do
+    @connection.user.update!(time_zone: "America/Toronto")
+    @connection.update!(tracking_started_on: Date.new(2026, 8, 22))
+    calendar = FakeCalendarFactory.new(
+      result: calendar_result(
+        days: [
+          contribution_day(Date.new(2026, 8, 21), 5, "FOURTH_QUARTILE"),
+          contribution_day(Date.new(2026, 8, 22), 3, "THIRD_QUARTILE"),
+          contribution_day(Date.new(2026, 8, 23), 1, "FIRST_QUARTILE")
+        ]
+      )
+    )
+
+    result = Github::SyncContributions.new(
+      connection: @connection,
+      now: Time.utc(2026, 8, 23, 0, 50),
+      calendar_client: calendar
+    ).call
+
+    assert_equal Date.new(2026, 8, 22), result.from_date
+    assert_equal Date.new(2026, 8, 22), result.to_date
+    assert_equal Date.new(2026, 8, 21), calendar.calls.first.fetch(:from_date)
+    assert_equal Date.new(2026, 8, 23), calendar.calls.first.fetch(:to_date)
+    assert_equal [ [ Date.new(2026, 8, 22), 3 ] ],
+      @connection.daily_contributions.pluck(:activity_date, :contribution_count)
   end
 
   test "rejects a token for a different GitHub identity without saving days" do
