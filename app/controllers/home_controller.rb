@@ -10,6 +10,18 @@ class HomeController < ApplicationController
     @heatmap_end_date = @heatmap_start_date + 370.days
     @github_contributions = contributions_in_heatmap_range
     @tracking_started_on = @github_connection&.tracking_started_on
+    @leetcode_connection = Current.user.leetcode_connection
+    @leetcode_today = Time.current.utc.to_date
+    @leetcode_heatmap_start_date = @leetcode_today.beginning_of_week(:sunday) - 52.weeks
+    @leetcode_heatmap_end_date = @leetcode_heatmap_start_date + 370.days
+    @leetcode_activities = leetcode_activities_in_heatmap_range
+    @leetcode_heatmap = Leetcode::ActivityHeatmapPresenter.new(
+      connection: @leetcode_connection,
+      today: @leetcode_today,
+      start_date: @leetcode_heatmap_start_date,
+      end_date: @leetcode_heatmap_end_date,
+      activities: @leetcode_activities
+    )
   end
 
   private
@@ -18,6 +30,14 @@ class HomeController < ApplicationController
 
       @github_connection.daily_contributions
         .where(activity_date: @heatmap_start_date..@heatmap_end_date)
+        .index_by(&:activity_date)
+    end
+
+    def leetcode_activities_in_heatmap_range
+      return {} unless @leetcode_connection
+
+      @leetcode_connection.daily_activities
+        .where(activity_date: @leetcode_heatmap_start_date..@leetcode_heatmap_end_date)
         .index_by(&:activity_date)
     end
 end

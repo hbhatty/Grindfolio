@@ -1,0 +1,25 @@
+<article class="provider-card provider-card--blue" aria-labelledby="provider-leetcode-heading">
+  <div class="provider-card-heading">
+    <div class="provider-card-identity">
+      <span class="provider-icon" aria-hidden="true">LC</span>
+      <div>
+        <h2 id="provider-leetcode-heading">LeetCode</h2>
+        <p>Practice activity</p>
+      </div>
+    </div>
+
+    <span class="provider-coming-soon">Unsupported beta</span>
+  </div>
+
+  <% if @leetcode_connection %>
+    <p class="provider-card-meta">
+      Connected as <strong>@<%= @leetcode_connection.username %></strong> · Tracking from
+      <%= @leetcode_connection.tracking_started_on.to_fs(:long) %> (UTC)
+    </p>
+  <% else %>
+    <p class="provider-card-meta">
+      <%= link_to "Connect from Account", account_path, class: "dashboard-link" %>.
+      Practice activity starts on the UTC connection date; earlier submissions are not imported.
+    </p>
+  <% end %>
+</article>

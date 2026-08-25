@@ -1,5 +1,4 @@
 <% future_activity_cards = [
-  { key: :leetcode, name: "LeetCode", purpose: "Practice activity", short_name: "LC", tone: "blue", placeholder: "Submission tracking will appear here." },
   { key: :notion, name: "Notion", purpose: "Job applications", short_name: "N", tone: "orange", placeholder: "Application tracking will appear here." }
 ] %>
 
@@ -23,6 +22,7 @@
 
   <section class="provider-grid" aria-label="Activity providers">
     <%= render "home/github_provider_frame" %>
+    <%= render "home/leetcode_provider_card" %>
     <% future_activity_cards.each do |provider| %>
       <%= render "home/provider_card",
         provider:,
@@ -32,4 +32,5 @@
   </section>
 
   <%= render "home/github_activity_frame" %>
+  <%= render "home/leetcode_activity" %>
 </main>

@@ -20,12 +20,12 @@ export default class extends Controller {
 
     this.dateTarget.textContent = day.dataset.label
     this.countTarget.textContent = count
-    this.messageTarget.textContent = state === "untracked"
+    this.messageTarget.textContent = day.dataset.message || (state === "untracked"
       ? "Tracking begins on the day you connect GitHub. Earlier dates are intentionally left untracked."
       : state === "future"
         ? "This date has not happened yet."
         : state === "pending"
           ? "This date is inside the tracking window but has not been synchronized yet."
-          : `GitHub reported ${count} contribution${count === "1" ? "" : "s"} on this day.`
+          : `GitHub reported ${count} contribution${count === "1" ? "" : "s"} on this day.`)
   }
 }

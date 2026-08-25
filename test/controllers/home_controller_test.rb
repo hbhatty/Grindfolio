@@ -226,7 +226,101 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[action='#{github_activity_update_path}']", count: 0
   end
 
+  test "renders cached LeetCode dashboard state without constructing a provider or sync client" do
+    travel_to Time.utc(2026, 8, 25, 12) do
+      user = create_signed_in_user
+      connection = create_leetcode_connection(
+        user,
+        username: "CanonicalUser",
+        tracking_started_on: Date.new(2026, 8, 23)
+      )
+      connection.update!(last_synced_at: Time.utc(2026, 8, 25, 11, 30))
+      connection.daily_activities.create!(
+        activity_date: Date.new(2026, 8, 24),
+        submission_count: 0
+      )
+      connection.daily_activities.create!(
+        activity_date: Date.new(2026, 8, 25),
+        submission_count: 4
+      )
+      create_github_connection(user, sync_status: "ready", last_synced_at: Time.current)
+
+      sync_factory = ->(**) { flunk "sync service was constructed by dashboard GET" }
+      provider_factory = ->(**) { flunk "provider client was constructed by dashboard GET" }
+      with_replaced_factory(Leetcode::SyncActivities, sync_factory) do
+        with_replaced_factory(Leetcode::SubmissionCalendar, provider_factory) do
+          get root_url
+        end
+      end
+
+      assert_response :success
+      assert_select ".provider-card--blue", text: /Connected as @CanonicalUser/
+      assert_select ".provider-card--blue", text: /Unsupported beta/
+      assert_select "section[aria-labelledby='practice-heatmap-heading']" do
+        assert_select ".heatmap-caption", text: /LeetCode date \(UTC\).*not rebucketed/
+        assert_select ".heatmap-sync-status", text: /Last updated.*UTC/
+        assert_select "form[action='#{leetcode_activity_update_path}'] button[data-turbo-submits-with='Updating…']", "Update LeetCode activity"
+        assert_select "button[aria-label='August 22, 2026 — LeetCode date (UTC): not tracked'][data-state='untracked'][data-count='—']"
+        assert_select "button[aria-label='August 23, 2026 — LeetCode date (UTC): not synchronized'][data-state='unsynchronized'][data-count='—']"
+        assert_select "button[aria-label='August 24, 2026 — LeetCode date (UTC): raw submission count 0; synchronized with no submissions'][data-state='zero'][data-count='0']"
+        assert_select "button[aria-label='August 25, 2026 — LeetCode date (UTC): raw submission count 4; active'][data-state='active'][data-count='4'][aria-pressed='true']"
+        assert_select "[data-heatmap-target='date']", "August 25, 2026 — LeetCode date (UTC)"
+        assert_select "[data-heatmap-target='message']", /raw submission count: 4.*LeetCode date \(UTC\)/
+        assert_select "[data-heatmap-target='count']", "4"
+      end
+      assert_select "section[aria-labelledby='build-heatmap-heading'] h2", "GitHub activity"
+      assert_select "form[action='#{github_activity_update_path}'] button", "Update activity"
+    end
+  end
+
+  test "distinguishes never-updated and failed LeetCode dashboard states" do
+    user = create_signed_in_user
+    connection = create_leetcode_connection(
+      user,
+      username: "CanonicalUser",
+      tracking_started_on: Date.current
+    )
+
+    get root_url
+
+    assert_response :success
+    assert_select "section[aria-labelledby='practice-heatmap-heading'] .heatmap-sync-status", "Never updated"
+
+    connection.daily_activities.create!(
+      activity_date: Date.current,
+      submission_count: 3
+    )
+
+    connection.update!(last_sync_error: Leetcode::SyncActivities::STORED_ERROR_MESSAGE)
+    get root_url
+
+    assert_response :success
+    assert_select "section[aria-labelledby='practice-heatmap-heading'] .heatmap-sync-status",
+      "LeetCode activity could not be updated. Your saved activity is still available."
+    assert_select "section[aria-labelledby='practice-heatmap-heading'] form[action='#{leetcode_activity_update_path}']"
+    assert_select "section[aria-labelledby='practice-heatmap-heading'] button[data-state='active'][data-count='3'][aria-pressed='true']"
+  end
+
+  test "renders a disconnected Practice card without an update action" do
+    create_signed_in_user
+
+    get root_url
+
+    assert_response :success
+    assert_select ".provider-card--blue a[href='#{account_path}']", "Connect from Account"
+    assert_select "section[aria-labelledby='practice-heatmap-heading']", text: /Connect LeetCode/
+    assert_select "form[action='#{leetcode_activity_update_path}']", count: 0
+  end
+
   private
+    def with_replaced_factory(factory_owner, replacement)
+      original_factory = factory_owner.method(:new)
+      factory_owner.define_singleton_method(:new, replacement)
+      yield
+    ensure
+      factory_owner.define_singleton_method(:new, original_factory)
+    end
+
     def create_signed_in_user(time_zone: nil)
       user = User.create!(time_zone:)
       credential = user.create_password_credential!(
@@ -259,6 +353,14 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
         sync_status:,
         last_synced_at:,
         last_sync_error:
+      )
+    end
+
+    def create_leetcode_connection(user, username:, tracking_started_on:)
+      user.create_leetcode_connection!(
+        username:,
+        tracking_started_on:,
+        verified_at: Time.current
       )
     end
 end

@@ -1,0 +1,78 @@
+<% selected_cell = @leetcode_heatmap.cells.find(&:selected) %>
+
+<section class="heatmap-card" aria-labelledby="practice-heatmap-heading" data-controller="heatmap">
+  <div class="heatmap-card-header">
+    <div>
+      <p class="heatmap-kicker">Practice</p>
+      <h2 id="practice-heatmap-heading">LeetCode activity</h2>
+      <p class="heatmap-caption">Cached submission totals retain the LeetCode date (UTC); they are not rebucketed into your local time zone.</p>
+    </div>
+    <div class="heatmap-sync">
+      <p class="heatmap-sync-status" role="status" aria-live="polite" aria-atomic="true">
+        <% if @leetcode_connection&.last_sync_error.present? %>
+          LeetCode activity could not be updated. Your saved activity is still available.
+        <% elsif @leetcode_connection&.last_synced_at %>
+          <% local_sync_time = @leetcode_connection.last_synced_at.in_time_zone(@display_time_zone) %>
+          Last updated <%= time_tag local_sync_time, local_sync_time.to_fs(:short) %> <%= local_sync_time.zone %>
+        <% elsif @leetcode_connection %>
+          Never updated
+        <% else %>
+          Connect LeetCode to begin tracking practice activity.
+        <% end %>
+      </p>
+
+      <% if @leetcode_connection %>
+        <%= button_to "Update LeetCode activity",
+          leetcode_activity_update_path,
+          method: :post,
+          class: "heatmap-sync-action",
+          data: { turbo_submits_with: "Updating…" } %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="heatmap-months" aria-hidden="true">
+    <% previous_month = nil %>
+    <% (@leetcode_heatmap_start_date..@leetcode_heatmap_end_date).to_a.each_with_index do |date, index| %>
+      <% month_key = date.strftime("%Y-%m") %>
+      <% if month_key != previous_month && date.day <= 7 %>
+        <span style="grid-column: <%= (index / 7) + 2 %>;"><%= date.strftime("%b") %></span>
+        <% previous_month = month_key %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="heatmap-grid" role="grid" aria-label="LeetCode Practice activity for the last year, using LeetCode dates in UTC">
+    <div class="heatmap-weekdays" aria-hidden="true">
+      <span></span><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span>
+    </div>
+    <% @leetcode_heatmap.cells.each do |cell| %>
+      <button
+        type="button"
+        class="heatmap-cell heatmap-cell--<%= cell.state %> heatmap-cell--<%= cell.level %>"
+        style="grid-column: <%= cell.week + 2 %>; grid-row: <%= cell.weekday + 1 %>;"
+        data-heatmap-target="day"
+        data-action="heatmap#select"
+        data-label="<%= cell.date_label %>"
+        data-count="<%= cell.submission_count.nil? ? "—" : cell.submission_count %>"
+        data-state="<%= cell.state %>"
+        data-message="<%= cell.detail_message %>"
+        aria-label="<%= cell.aria_label %>"
+        aria-pressed="<%= cell.selected %>"></button>
+    <% end %>
+  </div>
+
+  <div class="heatmap-footer">
+    <div class="heatmap-legend" aria-label="Submission intensity legend"><span>Less</span><i class="heatmap-swatch heatmap-swatch--none"></i><i class="heatmap-swatch heatmap-swatch--first"></i><i class="heatmap-swatch heatmap-swatch--second"></i><i class="heatmap-swatch heatmap-swatch--third"></i><i class="heatmap-swatch heatmap-swatch--fourth"></i><span>More</span></div>
+    <p><span class="heatmap-outline" aria-hidden="true"></span>Not tracked before connection</p>
+  </div>
+
+  <div class="heatmap-selected-day" aria-live="polite" aria-labelledby="leetcode-selected-day-heading">
+    <div>
+      <p class="heatmap-selected-label">Selected day</p>
+      <h3 id="leetcode-selected-day-heading" data-heatmap-target="date"><%= selected_cell.date_label %></h3>
+      <p data-heatmap-target="message"><%= selected_cell.detail_message %></p>
+    </div>
+    <div class="heatmap-selected-value"><strong data-heatmap-target="count"><%= selected_cell.submission_count.nil? ? "—" : selected_cell.submission_count %></strong><span>submissions</span></div>
+  </div>
+</section>
