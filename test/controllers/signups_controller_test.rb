@@ -20,7 +20,7 @@ class SignupsControllerTest < ActionDispatch::IntegrationTest
     get sign_up_url
 
     assert_response :success
-    assert_select "h1", "Create your Gridfolio account"
+    assert_select "h1", "Create your Grindfolio account"
     assert_select "form[action='#{sign_up_path}'][method='post']"
     assert_select "label[for='signup_email_address']", "Email address"
     assert_select "input[type='email'][name='signup[email_address]'][autocomplete='email'][required][maxlength='254']"

@@ -5,7 +5,7 @@ class EmailVerificationMailer < ApplicationMailer
 
     mail(
       to: @password_credential.email_address,
-      subject: "Verify your Gridfolio email"
+      subject: "Verify your Grindfolio email"
     )
   end
 end

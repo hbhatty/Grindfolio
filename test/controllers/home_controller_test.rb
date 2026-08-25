@@ -13,11 +13,11 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     clear_enqueued_jobs
   end
 
-  test "renders the Gridfolio home page" do
+  test "renders the Grindfolio home page" do
     get root_url
 
     assert_response :success
-    assert_select "h1", "Gridfolio"
+    assert_select "h1", "Grindfolio"
     assert_select "p", "Your developer journey, mapped daily."
     assert_select "a[href='#{sign_up_path}']", "Create an account"
     assert_select "a[href='#{sign_in_path}']", "Sign in"

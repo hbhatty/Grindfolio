@@ -55,7 +55,7 @@ class Github::ContributionCalendarTest < ActiveSupport::TestCase
     ], result[:days]
     assert_equal "2026-08-21T00:00:00Z", request_payload.dig("variables", "from")
     assert_equal "2026-08-22T23:59:59Z", request_payload.dig("variables", "to")
-    assert_equal "Gridfolio", http.request["User-Agent"]
+    assert_equal "Grindfolio", http.request["User-Agent"]
     assert_not_includes result.inspect, "secret-token"
   end
 

@@ -44,7 +44,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     get account_path
 
     assert_response :success
-    assert_select "h1", "Your Gridfolio account"
+    assert_select "h1", "Your Grindfolio account"
     assert_select "dd", "current@example.com"
     assert_select "body", text: /other@example\.com/, count: 0
     assert_select "form[action='#{account_path}'][method='post']" do

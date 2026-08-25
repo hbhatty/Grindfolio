@@ -17,7 +17,7 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     get sign_in_url
 
     assert_response :success
-    assert_select "h1", "Sign in to Gridfolio"
+    assert_select "h1", "Sign in to Grindfolio"
     assert_select "form[action='#{sign_in_path}'][method='post']"
     assert_select "label[for='session_email_address']", "Email address"
     assert_select "input[type='email'][name='session[email_address]'][autocomplete='email'][required][maxlength='254']"

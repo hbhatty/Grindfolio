@@ -31,7 +31,7 @@ from="${from_date}T00:00:00Z"
 to="${to_date}T23:59:59Z"
 
 read -r -d '' query <<'GRAPHQL' || true
-query GridfolioContributionProbe($from: DateTime!, $to: DateTime!) {
+query GrindfolioContributionProbe($from: DateTime!, $to: DateTime!) {
   viewer {
     id
     login

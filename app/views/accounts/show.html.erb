@@ -1,10 +1,10 @@
-<% content_for :title, "Your Gridfolio account" %>
+<% content_for :title, "Your Grindfolio account" %>
 
 <main class="account-shell">
   <header class="account-header">
     <div>
       <p class="account-eyebrow">Settings</p>
-      <h1>Your Gridfolio account</h1>
+      <h1>Your Grindfolio account</h1>
       <p class="account-intro">Manage your account details and the providers connected to your private activity dashboard.</p>
     </div>
     <%= link_to "Back to activity", root_path, class: "account-back-link" %>
@@ -43,7 +43,7 @@
 
       <div class="account-form-heading">
         <h3>Calendar settings</h3>
-        <p>Your time zone is used when Gridfolio displays local calendar dates.</p>
+        <p>Your time zone is used when Grindfolio displays local calendar dates.</p>
       </div>
 
       <%= form_with model: @user, url: account_path, method: :patch, class: "account-form" do |form| %>
@@ -68,7 +68,7 @@
           <h2 id="provider-connections-heading">Provider connections</h2>
         </div>
       </div>
-      <p class="account-card-intro">Connect the accounts Gridfolio uses for your private activity dashboard.</p>
+      <p class="account-card-intro">Connect the accounts Grindfolio uses for your private activity dashboard.</p>
 
       <div class="account-provider-list">
         <article class="account-provider account-provider--github">

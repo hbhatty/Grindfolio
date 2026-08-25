@@ -1,10 +1,10 @@
-<% content_for :title, "Gridfolio" %>
+<% content_for :title, "Grindfolio" %>
 
 <% if Current.user %>
   <%= render "activity_dashboard" %>
 <% else %>
   <main class="marketing-home">
-    <h1>Gridfolio</h1>
+    <h1>Grindfolio</h1>
     <p>Your developer journey, mapped daily.</p>
     <p><%= link_to "Create an account", sign_up_path %></p>
     <p><%= link_to "Sign in", sign_in_path %></p>

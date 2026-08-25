@@ -7,7 +7,7 @@ module Github
 
     ENDPOINT = URI("https://api.github.com/graphql").freeze
     QUERY = <<~GRAPHQL.freeze
-      query GridfolioContributionCalendar($from: DateTime!, $to: DateTime!) {
+      query GrindfolioContributionCalendar($from: DateTime!, $to: DateTime!) {
         viewer {
           id
           databaseId
@@ -65,7 +65,7 @@ module Github
         request["Accept"] = "application/vnd.github+json"
         request["Authorization"] = "Bearer #{access_token}"
         request["Content-Type"] = "application/json"
-        request["User-Agent"] = "Gridfolio"
+        request["User-Agent"] = "Grindfolio"
         request.body = JSON.generate(
           query: QUERY,
           variables: {

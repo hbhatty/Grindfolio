@@ -1,7 +1,7 @@
 require "test_helper"
 
 class ExternalIdentityTest < ActiveSupport::TestCase
-  test "belongs to a Gridfolio user and stores the provider UID as an opaque string" do
+  test "belongs to a Grindfolio user and stores the provider UID as an opaque string" do
     user = User.create!
     identity = user.external_identities.create!(
       provider: "github",
@@ -14,7 +14,7 @@ class ExternalIdentityTest < ActiveSupport::TestCase
     assert_equal "octocat", identity.provider_username
   end
 
-  test "one provider account cannot belong to two Gridfolio users" do
+  test "one provider account cannot belong to two Grindfolio users" do
     first_user = User.create!
     second_user = User.create!
     first_user.external_identities.create!(

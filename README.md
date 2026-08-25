@@ -1,6 +1,6 @@
-# Gridfolio
+# Grindfolio
 
-Gridfolio is an early Rails application for tracking developer consistency across building, practicing, and applying.
+Grindfolio is an early Rails application for tracking developer consistency across building, practicing, and applying.
 
 ## Included in this checkpoint
 
@@ -18,7 +18,7 @@ Gridfolio is an early Rails application for tracking developer consistency acros
 - An authenticated homepage with focused in-place synchronization feedback and a heatmap rendered from saved GitHub daily totals
 - Automated controller, model, job, mailer, and service tests
 
-The GitHub connection flow saves identity and encrypted credentials. Before synchronization, Gridfolio reuses a valid access token or atomically exchanges the refresh token for a new encrypted credential pair. The dashboard's **Update activity** action records a durable request and enqueues provider work; focused Turbo updates render progress, cached results, retryable failure, or required reauthorization without holding the browser request open.
+The GitHub connection flow saves identity and encrypted credentials. Before synchronization, Grindfolio reuses a valid access token or atomically exchanges the refresh token for a new encrypted credential pair. The dashboard's **Update activity** action records a durable request and enqueues provider work; focused Turbo updates render progress, cached results, retryable failure, or required reauthorization without holding the browser request open.
 
 ## Local development
 

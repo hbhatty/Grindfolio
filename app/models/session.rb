@@ -1,5 +1,5 @@
 class Session < ApplicationRecord
-  COOKIE_NAME = :gridfolio_session_id
+  COOKIE_NAME = :grindfolio_session_id
   IDLE_TIMEOUT = 7.days
   ABSOLUTE_TIMEOUT = 30.days
   ACTIVITY_REFRESH_CADENCE = 1.hour

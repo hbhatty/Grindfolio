@@ -74,7 +74,7 @@ module Github
         request = Net::HTTP::Post.new(ENDPOINT)
         request["Accept"] = "application/json"
         request["Content-Type"] = "application/x-www-form-urlencoded"
-        request["User-Agent"] = "Gridfolio"
+        request["User-Agent"] = "Grindfolio"
         request.set_form_data(
           client_id:,
           client_secret:,

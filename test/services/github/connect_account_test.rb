@@ -145,7 +145,7 @@ class Github::ConnectAccountTest < ActiveSupport::TestCase
     assert_equal "replacement-refresh-token", connection.refresh_token
   end
 
-  test "rejects a GitHub identity claimed by another Gridfolio user" do
+  test "rejects a GitHub identity claimed by another Grindfolio user" do
     owner = User.create!
     attacker = User.create!
     original = connect(user: owner)

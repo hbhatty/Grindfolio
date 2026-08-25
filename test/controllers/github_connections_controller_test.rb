@@ -17,7 +17,7 @@ class GithubConnectionsControllerTest < ActionDispatch::IntegrationTest
     Rails.cache.clear
   end
 
-  test "requires a signed-in Gridfolio account" do
+  test "requires a signed-in Grindfolio account" do
     assert_no_difference -> { ExternalIdentity.count } do
       assert_no_difference -> { GithubConnection.count } do
         begin_github_authorization

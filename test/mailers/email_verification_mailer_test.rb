@@ -10,7 +10,7 @@ class EmailVerificationMailerTest < ActionMailer::TestCase
     email = EmailVerificationMailer.verify(credential)
 
     assert_equal [ credential.email_address ], email.to
-    assert_equal "Verify your Gridfolio email", email.subject
+    assert_equal "Verify your Grindfolio email", email.subject
     assert_match(%r{/email_verification/[^\s\"<]+}, email.html_part.body.to_s)
     assert_match(%r{/email_verification/[^\s]+}, email.text_part.body.to_s)
     assert_includes email.html_part.body.to_s, "This link expires in 24 hours."
