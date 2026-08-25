@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_24_042233) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_25_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -62,6 +62,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_042233) do
 
   create_table "leetcode_connections", force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.text "last_sync_error"
+    t.datetime "last_synced_at"
     t.date "tracking_started_on", null: false
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
@@ -70,6 +72,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_042233) do
     t.index "lower((username)::text)", name: "index_leetcode_connections_on_lower_username", unique: true
     t.index ["user_id"], name: "index_leetcode_connections_on_user_id", unique: true
     t.check_constraint "username::text <> ''::text", name: "leetcode_connections_username_present"
+  end
+
+  create_table "leetcode_daily_activities", force: :cascade do |t|
+    t.date "activity_date", null: false
+    t.datetime "created_at", null: false
+    t.bigint "leetcode_connection_id", null: false
+    t.integer "submission_count", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["leetcode_connection_id", "activity_date"], name: "index_leetcode_daily_activities_on_connection_and_date", unique: true
+    t.index ["leetcode_connection_id"], name: "index_leetcode_daily_activities_on_leetcode_connection_id"
+    t.check_constraint "submission_count >= 0", name: "leetcode_daily_activities_nonnegative_count"
   end
 
   create_table "leetcode_verification_challenges", force: :cascade do |t|
@@ -122,6 +135,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_24_042233) do
   add_foreign_key "github_connections", "external_identities"
   add_foreign_key "github_daily_contributions", "github_connections"
   add_foreign_key "leetcode_connections", "users"
+  add_foreign_key "leetcode_daily_activities", "leetcode_connections"
   add_foreign_key "leetcode_verification_challenges", "users"
   add_foreign_key "password_credentials", "users"
   add_foreign_key "sessions", "users"

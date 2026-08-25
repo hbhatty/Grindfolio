@@ -1,5 +1,9 @@
 class LeetcodeConnection < ApplicationRecord
   belongs_to :user
+  has_many :daily_activities,
+    class_name: "LeetcodeDailyActivity",
+    dependent: :destroy,
+    inverse_of: :leetcode_connection
 
   normalizes :username, with: ->(username) { username.strip }
 
