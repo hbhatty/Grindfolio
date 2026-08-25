@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_23_060000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_24_042233) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -60,6 +60,34 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_23_060000) do
     t.check_constraint "contribution_level::text = ANY (ARRAY['NONE'::character varying, 'FIRST_QUARTILE'::character varying, 'SECOND_QUARTILE'::character varying, 'THIRD_QUARTILE'::character varying, 'FOURTH_QUARTILE'::character varying]::text[])", name: "github_daily_contributions_valid_level"
   end
 
+  create_table "leetcode_connections", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.date "tracking_started_on", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.string "username", null: false
+    t.datetime "verified_at", null: false
+    t.index "lower((username)::text)", name: "index_leetcode_connections_on_lower_username", unique: true
+    t.index ["user_id"], name: "index_leetcode_connections_on_user_id", unique: true
+    t.check_constraint "username::text <> ''::text", name: "leetcode_connections_username_present"
+  end
+
+  create_table "leetcode_verification_challenges", force: :cascade do |t|
+    t.datetime "consumed_at"
+    t.datetime "created_at", null: false
+    t.datetime "expires_at", null: false
+    t.string "requested_username", null: false
+    t.text "token", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.integer "verification_attempts", default: 0, null: false
+    t.index ["expires_at"], name: "index_leetcode_verification_challenges_on_expires_at"
+    t.index ["user_id"], name: "index_leetcode_verification_challenges_on_user_id"
+    t.check_constraint "requested_username::text <> ''::text", name: "leetcode_verification_challenges_username_present"
+    t.check_constraint "token <> ''::text", name: "leetcode_verification_challenges_token_present"
+    t.check_constraint "verification_attempts >= 0 AND verification_attempts <= 5", name: "leetcode_verification_challenges_attempts_in_range"
+  end
+
   create_table "password_credentials", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email_address", null: false
@@ -93,6 +121,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_23_060000) do
   add_foreign_key "external_identities", "users"
   add_foreign_key "github_connections", "external_identities"
   add_foreign_key "github_daily_contributions", "github_connections"
+  add_foreign_key "leetcode_connections", "users"
+  add_foreign_key "leetcode_verification_challenges", "users"
   add_foreign_key "password_credentials", "users"
   add_foreign_key "sessions", "users"
 end

@@ -58,7 +58,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     assert_select "p", text: /account and activity are private/i
   end
 
-  test "shows a GitHub connection action and two clearly unavailable provider connections" do
+  test "shows GitHub and LeetCode actions while keeping Notion unavailable" do
     sign_in_as(create_verified_user(email_address: "developer@example.com"))
 
     get account_path
@@ -68,11 +68,37 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
       assert_select "form[action='/auth/github'][method='post'][data-turbo='false']" do
         assert_select "button[type='submit']", "Connect GitHub"
       end
-      assert_select "button[type='button'][disabled]", count: 2
-      assert_select "button[disabled]", "Connect LeetCode — Coming soon"
+      assert_select ".account-provider--leetcode", text: /Unsupported beta/
+      assert_select "form[action='#{leetcode_verification_path}'][method='post']" do
+        assert_select "label[for='leetcode_verification_username']", "LeetCode username"
+        assert_select "input[name='leetcode_verification[username]'][required][maxlength='64']"
+        assert_select "input[type='submit'][value='Start LeetCode verification']"
+      end
+      assert_select "button[type='button'][disabled]", count: 1
       assert_select "button[disabled]", "Connect Notion — Coming soon"
-      assert_select "a[href*='leetcode']", count: 0
-      assert_select "a[href*='notion']", count: 0
+    end
+  end
+
+  test "shows the current temporary challenge and verification action" do
+    user = create_verified_user(email_address: "developer@example.com")
+    challenge = LeetcodeVerificationChallenge.issue_for!(
+      user:,
+      requested_username: "exampleuser"
+    )
+    sign_in_as(user)
+
+    get account_path
+
+    assert_response :success
+    assert_select ".account-provider--leetcode" do
+      assert_select ".account-provider-status--pending", "Verification pending"
+      assert_select "h4", "Verify exampleuser"
+      assert_select "code.account-challenge-code", challenge.token
+      assert_select "form[action='#{verify_leetcode_verification_path}'][method='post']" do
+        assert_select "button[type='submit']", "Verify LeetCode account"
+      end
+      assert_select "input[name='leetcode_verification[username]'][value='exampleuser']"
+      assert_select "input[type='submit'][value='Generate a new challenge']"
     end
   end
 

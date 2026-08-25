@@ -147,8 +147,8 @@ button, a, select, input { font: inherit; }
 .account-form { margin-top: 1rem; }
 .account-form > div { display: grid; gap: 0.4rem; }
 .account-form label { font-size: 0.75rem; font-weight: 700; }
-.account-form select { background: #fff; border: 1px solid #c7d6cd; border-radius: 0.5rem; color: #18251f; min-height: 2.35rem; padding: 0.45rem 0.6rem; width: 100%; }
-.account-form select:focus { border-color: #1a995b; outline: 2px solid rgb(26 153 91 / 20%); outline-offset: 1px; }
+.account-form select, .account-provider-form input[type="text"] { background: #fff; border: 1px solid #c7d6cd; border-radius: 0.5rem; color: #18251f; min-height: 2.35rem; padding: 0.45rem 0.6rem; width: 100%; }
+.account-form select:focus, .account-provider-form input[type="text"]:focus { border-color: #1a995b; outline: 2px solid rgb(26 153 91 / 20%); outline-offset: 1px; }
 .account-form small { color: #748179; font-size: 0.68rem; line-height: 1.4; }
 .account-form input[type="submit"], .account-provider-action { background: #166440; border: 0; border-radius: 0.5rem; color: #fff; cursor: pointer; font-size: 0.75rem; font-weight: 700; margin-top: 1rem; padding: 0.62rem 0.85rem; }
 .account-errors { background: #fff4f1; border: 1px solid #efc8bf; border-radius: 0.55rem; color: #8b3f34; margin-top: 1rem; padding: 0.75rem 0.85rem; }
@@ -158,6 +158,7 @@ button, a, select, input { font: inherit; }
 .account-provider-list { display: grid; gap: 0.75rem; margin-top: 1.15rem; }
 .account-provider { border: 1px solid #dce7df; border-radius: 0.65rem; padding: 0.9rem; }
 .account-provider--github { border-color: #b9dbc4; }
+.account-provider--leetcode { border-color: #d8d2ec; }
 .account-provider--disabled { background: #fbfcfb; }
 .account-provider-topline { align-items: flex-start; display: flex; gap: 0.8rem; justify-content: space-between; }
 .account-provider-identity { align-items: center; display: flex; gap: 0.65rem; }
@@ -178,6 +179,16 @@ button, a, select, input { font: inherit; }
 .account-connection-info dd { font-size: 0.76rem; }
 .account-provider-action { margin-top: 0.25rem; }
 .account-provider-help { color: #748179; font-size: 0.7rem; line-height: 1.4; margin: 0.8rem 0 0; }
+.account-provider-warning { background: #f6f3ff; border: 1px solid #ded6f3; border-radius: 0.5rem; color: #5d5375; font-size: 0.68rem; line-height: 1.45; margin: 0.8rem 0 0; padding: 0.6rem 0.7rem; }
+.account-challenge { background: #fafcfb; border: 1px solid #dce7df; border-radius: 0.55rem; margin-top: 0.8rem; padding: 0.75rem; }
+.account-challenge h4 { font-size: 0.78rem; margin: 0; }
+.account-challenge p, .account-challenge li { color: #65746c; font-size: 0.68rem; line-height: 1.45; }
+.account-challenge p { margin: 0.4rem 0; }
+.account-challenge ol { margin: 0.6rem 0 0; padding-left: 1.1rem; }
+.account-challenge-code { background: #edf4ef; border-radius: 0.4rem; display: block; font-size: 0.7rem; overflow-wrap: anywhere; padding: 0.55rem; user-select: all; }
+.account-provider-form { display: grid; gap: 0.4rem; margin-top: 0.85rem; }
+.account-provider-form label { font-size: 0.72rem; font-weight: 700; }
+.account-provider-form small { color: #748179; font-size: 0.66rem; line-height: 1.4; }
 .account-provider--disabled button[disabled] { background: #f0f3f1; border: 1px solid #dce4de; border-radius: 0.45rem; color: #849088; cursor: not-allowed; font-size: 0.68rem; margin-top: 0.75rem; padding: 0.48rem 0.6rem; }
 .account-privacy-note { color: #748179; font-size: 0.7rem; margin: 1.25rem 0 0; }
 

@@ -11,6 +11,7 @@ Grindfolio is an early Rails application for tracking developer consistency acro
 - Session expiration and activity refresh
 - Cleanup of registrations that remain unverified for seven days
 - A protected account page with IANA time-zone selection
+- An unsupported-beta LeetCode ownership flow using a temporary public-profile challenge and a forward-only UTC tracking boundary
 - A persisted GitHub connection flow with encrypted renewable OAuth credentials
 - Provider-independent external identities plus GitHub connection and daily-contribution tables
 - User-triggered GitHub contribution-calendar synchronization through a provider-specific background job
@@ -19,6 +20,8 @@ Grindfolio is an early Rails application for tracking developer consistency acro
 - Automated controller, model, job, mailer, and service tests
 
 The GitHub connection flow saves identity and encrypted credentials. Before synchronization, Grindfolio reuses a valid access token or atomically exchanges the refresh token for a new encrypted credential pair. The dashboard's **Update activity** action records a durable request and enqueues provider work; focused Turbo updates render progress, cached results, retryable failure, or required reauthorization without holding the browser request open.
+
+The LeetCode integration currently stops after proving control of a public username and recording the connection date. It requests only the public canonical username and README/About Me field during explicit verification; submission synchronization is not part of this checkpoint.
 
 ## Local development
 

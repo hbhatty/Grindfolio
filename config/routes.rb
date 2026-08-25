@@ -8,6 +8,9 @@ Rails.application.routes.draw do
   root "home#index"
 
   resource :account, only: %i[show update]
+  resource :leetcode_verification, only: :create do
+    post :verify
+  end
 
   resource :github_activity_update, only: %i[show create]
 

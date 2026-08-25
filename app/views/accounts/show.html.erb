@@ -121,7 +121,7 @@
           <% end %>
         </article>
 
-        <article class="account-provider account-provider--disabled">
+        <article class="account-provider account-provider--leetcode">
           <div class="account-provider-topline">
             <div class="account-provider-identity">
               <span class="account-provider-icon" aria-hidden="true">LC</span>
@@ -130,10 +130,70 @@
                 <p>Practice activity</p>
               </div>
             </div>
-            <span class="account-provider-status">Coming soon</span>
+            <% if @leetcode_connection %>
+              <span class="account-provider-status account-provider-status--ready"><span aria-hidden="true"></span>Connected</span>
+            <% elsif @leetcode_challenge&.usable? %>
+              <span class="account-provider-status account-provider-status--pending"><span aria-hidden="true"></span>Verification pending</span>
+            <% elsif @leetcode_challenge %>
+              <span class="account-provider-status account-provider-status--error"><span aria-hidden="true"></span>Challenge expired</span>
+            <% else %>
+              <span class="account-provider-status account-provider-status--pending"><span aria-hidden="true"></span>Unsupported beta</span>
+            <% end %>
           </div>
-          <p class="account-provider-help">Daily submission tracking will be available after the LeetCode integration is validated.</p>
-          <button type="button" disabled>Connect LeetCode — Coming soon</button>
+
+          <p class="account-provider-warning"><strong>Unsupported beta.</strong> LeetCode does not provide a documented API or stability guarantee for this connection.</p>
+
+          <% if @leetcode_connection %>
+            <dl class="account-connection-info">
+              <div>
+                <dt>Connected account</dt>
+                <dd><%= @leetcode_connection.username %></dd>
+              </div>
+              <div>
+                <dt>Tracking started</dt>
+                <dd><%= @leetcode_connection.tracking_started_on.to_fs(:long) %> UTC</dd>
+              </div>
+            </dl>
+            <p class="account-provider-help">Ownership is verified. Activity synchronization is not part of this checkpoint yet.</p>
+          <% else %>
+            <% if @leetcode_challenge&.usable? %>
+              <div class="account-challenge" aria-labelledby="leetcode-challenge-heading">
+                <h4 id="leetcode-challenge-heading">Verify <%= @leetcode_challenge.requested_username %></h4>
+                <p>Add this exact temporary challenge to your public LeetCode README/About Me:</p>
+                <code class="account-challenge-code"><%= @leetcode_challenge.token %></code>
+                <ol>
+                  <li>Copy the challenge into your LeetCode README/About Me and save.</li>
+                  <li>Return here and verify before it expires.</li>
+                  <li>Remove the challenge after Grindfolio confirms the connection.</li>
+                </ol>
+                <%= button_to "Verify LeetCode account",
+                  verify_leetcode_verification_path,
+                  method: :post,
+                  class: "account-provider-action" %>
+              </div>
+            <% elsif @leetcode_challenge %>
+              <p class="account-provider-help">That challenge expired. Generate a new one before editing your LeetCode profile.</p>
+            <% else %>
+              <p class="account-provider-help">Enter your public username. Generating a challenge makes no LeetCode request.</p>
+            <% end %>
+
+            <%= form_with url: leetcode_verification_path,
+              scope: :leetcode_verification,
+              method: :post,
+              class: "account-provider-form" do |form| %>
+              <%= form.label :username, "LeetCode username" %>
+              <%= form.text_field :username,
+                value: @leetcode_challenge&.requested_username,
+                required: true,
+                maxlength: 64,
+                autocomplete: "off",
+                spellcheck: false,
+                aria: { describedby: "leetcode-username-help" } %>
+              <small id="leetcode-username-help">Use the username from your public LeetCode profile, not a profile URL.</small>
+              <%= form.submit @leetcode_challenge&.usable? ? "Generate a new challenge" : "Start LeetCode verification",
+                class: "account-provider-action" %>
+            <% end %>
+          <% end %>
         </article>
 
         <article class="account-provider account-provider--disabled">

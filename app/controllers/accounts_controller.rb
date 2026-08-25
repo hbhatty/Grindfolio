@@ -21,6 +21,11 @@ class AccountsController < ApplicationController
       @verified_email_address = credential.email_address if credential&.email_verified_at?
       @github_identity = @user.external_identities.github.includes(:github_connection).first
       @github_connection = @github_identity&.github_connection
+      @leetcode_connection = @user.leetcode_connection
+      @leetcode_challenge = @user.leetcode_verification_challenges
+        .where(consumed_at: nil)
+        .order(created_at: :desc)
+        .first unless @leetcode_connection
     end
 
     def account_params

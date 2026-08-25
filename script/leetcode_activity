@@ -1,0 +1,171 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require "date"
+require "fileutils"
+require "json"
+require "net/http"
+require "optparse"
+require "uri"
+
+ENDPOINT = URI("https://leetcode.com/graphql/")
+COOLDOWN_PATH = File.expand_path("../tmp/leetcode_activity_probe.lock", __dir__)
+COOLDOWN_SECONDS = 15 * 60
+QUERY = <<~GRAPHQL
+  query GrindfolioLeetCodeProbe($username: String!, $year: Int) {
+    matchedUser(username: $username) {
+      id
+      username
+      profile {
+        aboutMe
+      }
+      userCalendar(year: $year) {
+        activeYears
+        totalActiveDays
+        submissionCalendar
+      }
+    }
+  }
+GRAPHQL
+
+options = { year: Date.today.year }
+parser = OptionParser.new do |config|
+  config.banner = "Usage: script/leetcode_activity [--year YEAR] [--challenge TOKEN] USERNAME"
+  config.on("--year YEAR", Integer, "Calendar year to retrieve (default: current year)") do |year|
+    options[:year] = year
+  end
+  config.on("--challenge TOKEN", "Check whether About Me contains TOKEN without printing the profile") do |challenge|
+    options[:challenge] = challenge
+  end
+end
+
+begin
+  parser.parse!
+rescue OptionParser::ParseError => error
+  warn error.message
+  warn parser
+  exit 1
+end
+
+username = ARGV.shift
+if username.nil? || username.empty? || ARGV.any?
+  warn parser
+  exit 1
+end
+
+unless options[:year].between?(2000, 2100)
+  warn "YEAR must be between 2000 and 2100."
+  exit 1
+end
+
+request = Net::HTTP::Post.new(ENDPOINT)
+request["Content-Type"] = "application/json"
+request["User-Agent"] = "Grindfolio LeetCode unsupported-beta probe"
+request.body = JSON.generate(
+  query: QUERY,
+  variables: { username: username, year: options[:year] }
+)
+
+begin
+  FileUtils.mkdir_p(File.dirname(COOLDOWN_PATH))
+  response = File.open(COOLDOWN_PATH, File::RDWR | File::CREAT, 0o600) do |lock|
+    lock.flock(File::LOCK_EX)
+    last_request_at = lock.read.to_i
+    remaining_seconds = COOLDOWN_SECONDS - (Time.now.to_i - last_request_at)
+
+    if last_request_at.positive? && remaining_seconds.positive?
+      warn "Probe cooldown active. Try again in #{remaining_seconds} seconds."
+      exit 1
+    end
+
+    lock.rewind
+    lock.truncate(0)
+    lock.write(Time.now.to_i)
+    lock.flush
+
+    Net::HTTP.start(
+      ENDPOINT.host,
+      ENDPOINT.port,
+      use_ssl: true,
+      open_timeout: 10,
+      read_timeout: 20
+    ) { |http| http.request(request) }
+  end
+rescue SystemCallError, SocketError, Timeout::Error => error
+  warn "LeetCode request failed without retry: #{error.message}"
+  exit 1
+end
+
+if [ 403, 429 ].include?(response.code.to_i)
+  warn "LeetCode returned HTTP #{response.code}; stop testing rather than retrying or bypassing access controls."
+  exit 1
+end
+
+unless response.is_a?(Net::HTTPSuccess)
+  warn "LeetCode query failed without retry: HTTP #{response.code}."
+  exit 1
+end
+
+begin
+  payload = JSON.parse(response.body)
+rescue JSON::ParserError
+  warn "LeetCode returned a non-JSON response; stop testing rather than retrying."
+  exit 1
+end
+
+errors = Array(payload["errors"]).filter_map { |error| error["message"] }
+unless errors.empty?
+  warn "LeetCode query failed without retry: #{errors.join("; ")}"
+  exit 1
+end
+
+matched_user = payload.dig("data", "matchedUser")
+if matched_user.nil?
+  warn "LeetCode user not found."
+  exit 1
+end
+
+begin
+  calendar = matched_user.fetch("userCalendar")
+  submission_calendar = JSON.parse(calendar.fetch("submissionCalendar"))
+
+  active_days = submission_calendar.map do |timestamp, count|
+    epoch = Integer(timestamp, 10)
+    raise TypeError unless count.is_a?(Integer) && count.positive? && (epoch % 86_400).zero?
+
+    {
+      date: Time.at(epoch).utc.strftime("%F"),
+      submissionCount: count
+    }
+  end.sort_by { |day| day[:date] }
+
+  if active_days.length != calendar.fetch("totalActiveDays")
+    warn "LeetCode returned inconsistent calendar totals."
+    exit 1
+  end
+
+  about_me = matched_user.dig("profile", "aboutMe")
+  challenge = options[:challenge]
+
+  puts JSON.pretty_generate(
+    user: {
+      requestedUsername: username,
+      canonicalUsername: matched_user.fetch("username"),
+      publicStableId: matched_user["id"]
+    },
+    profile: {
+      aboutMeReadable: about_me.is_a?(String),
+      challengePresent: challenge.nil? ? nil : about_me.to_s.include?(challenge)
+    },
+    calendar: {
+      year: options[:year],
+      activeYears: calendar.fetch("activeYears"),
+      totalActiveDays: calendar.fetch("totalActiveDays"),
+      totalSubmissions: active_days.sum { |day| day[:submissionCount] },
+      activeDays: active_days
+    }
+  )
+rescue JSON::ParserError, KeyError, TypeError, ArgumentError
+  warn "LeetCode returned an unexpected response shape."
+  exit 1
+end
