@@ -5,6 +5,7 @@ class User < ApplicationRecord
   has_many :sessions, dependent: :destroy
   has_many :external_identities, dependent: :destroy
   has_one :leetcode_connection, dependent: :destroy
+  has_one :notion_connection, dependent: :destroy
   has_many :leetcode_daily_activities, through: :leetcode_connection, source: :daily_activities
   has_many :leetcode_verification_challenges, dependent: :destroy
 

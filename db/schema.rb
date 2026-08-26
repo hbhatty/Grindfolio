@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_25_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_26_165928) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -101,6 +101,26 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_25_000000) do
     t.check_constraint "verification_attempts >= 0 AND verification_attempts <= 5", name: "leetcode_verification_challenges_attempts_in_range"
   end
 
+  create_table "notion_connections", force: :cascade do |t|
+    t.text "access_token", null: false
+    t.datetime "authorized_at", null: false
+    t.string "bot_id", null: false
+    t.datetime "created_at", null: false
+    t.string "owner_user_id"
+    t.text "refresh_token", null: false
+    t.date "tracking_started_on", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.string "workspace_id", null: false
+    t.string "workspace_name"
+    t.index ["bot_id"], name: "index_notion_connections_on_bot_id", unique: true
+    t.index ["user_id"], name: "index_notion_connections_on_user_id", unique: true
+    t.check_constraint "access_token <> ''::text", name: "notion_connections_access_token_present"
+    t.check_constraint "bot_id::text <> ''::text", name: "notion_connections_bot_id_present"
+    t.check_constraint "refresh_token <> ''::text", name: "notion_connections_refresh_token_present"
+    t.check_constraint "workspace_id::text <> ''::text", name: "notion_connections_workspace_id_present"
+  end
+
   create_table "password_credentials", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "email_address", null: false
@@ -137,6 +157,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_25_000000) do
   add_foreign_key "leetcode_connections", "users"
   add_foreign_key "leetcode_daily_activities", "leetcode_connections"
   add_foreign_key "leetcode_verification_challenges", "users"
+  add_foreign_key "notion_connections", "users"
   add_foreign_key "password_credentials", "users"
   add_foreign_key "sessions", "users"
 end
