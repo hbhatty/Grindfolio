@@ -196,7 +196,7 @@
           <% end %>
         </article>
 
-        <article class="account-provider account-provider--disabled">
+        <article class="account-provider">
           <div class="account-provider-topline">
             <div class="account-provider-identity">
               <span class="account-provider-icon" aria-hidden="true">N</span>
@@ -205,10 +205,38 @@
                 <p>Job application activity</p>
               </div>
             </div>
-            <span class="account-provider-status">Coming soon</span>
+            <% if @notion_connection %>
+              <span class="account-provider-status account-provider-status--ready"><span aria-hidden="true"></span>Connected</span>
+            <% else %>
+              <span class="account-provider-status account-provider-status--available">Available</span>
+            <% end %>
           </div>
-          <p class="account-provider-help">Choose and map an applications database when the Notion integration is ready.</p>
-          <button type="button" disabled>Connect Notion — Coming soon</button>
+
+          <% if @notion_connection %>
+            <dl class="account-connection-info">
+              <div>
+                <dt>Workspace</dt>
+                <dd><%= @notion_connection.workspace_name.presence || "Notion workspace" %></dd>
+              </div>
+              <div>
+                <dt>Tracking started</dt>
+                <dd><%= @notion_connection.tracking_started_on.to_fs(:long) %></dd>
+              </div>
+            </dl>
+            <%= button_to "Reauthorize Notion",
+              notion_authorization_path,
+              method: :post,
+              form: { data: { turbo: false } },
+              class: "account-provider-action" %>
+            <p class="account-provider-help">Reauthorizing updates secure credentials without resetting your tracking date. Application synchronization remains unavailable until a tracker is configured.</p>
+          <% else %>
+            <p class="account-provider-help">Authorize read-only access and choose which Notion pages Grindfolio may access. Connecting does not synchronize application activity.</p>
+            <%= button_to "Connect Notion",
+              notion_authorization_path,
+              method: :post,
+              form: { data: { turbo: false } },
+              class: "account-provider-action" %>
+          <% end %>
         </article>
       </div>
     </section>

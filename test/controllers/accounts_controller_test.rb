@@ -58,7 +58,7 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     assert_select "p", text: /account and activity are private/i
   end
 
-  test "shows GitHub and LeetCode actions while keeping Notion unavailable" do
+  test "shows GitHub, LeetCode, and Notion connection actions" do
     sign_in_as(create_verified_user(email_address: "developer@example.com"))
 
     get account_path
@@ -74,8 +74,9 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
         assert_select "input[name='leetcode_verification[username]'][required][maxlength='64']"
         assert_select "input[type='submit'][value='Start LeetCode verification']"
       end
-      assert_select "button[type='button'][disabled]", count: 1
-      assert_select "button[disabled]", "Connect Notion — Coming soon"
+      assert_select "form[action='#{notion_authorization_path}'][method='post'][data-turbo='false']" do
+        assert_select "button[type='submit']", "Connect Notion"
+      end
     end
   end
 
@@ -130,6 +131,35 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     end
     assert_not_includes response.body, "access-token"
     assert_not_includes response.body, "refresh-token"
+  end
+
+  test "shows the connected Notion workspace and reauthorization action without credentials" do
+    user = create_verified_user(email_address: "developer@example.com")
+    user.create_notion_connection!(
+      workspace_id: "workspace-id",
+      workspace_name: "Example workspace",
+      bot_id: "bot-id",
+      owner_user_id: "notion-user-id",
+      access_token: "notion-access-token",
+      refresh_token: "notion-refresh-token",
+      tracking_started_on: Date.new(2026, 8, 26),
+      authorized_at: Time.utc(2026, 8, 26, 16)
+    )
+    sign_in_as(user)
+
+    get account_path
+
+    assert_response :success
+    assert_select ".account-provider-status--ready", "Connected"
+    assert_select "dt", "Workspace"
+    assert_select "dd", "Example workspace"
+    assert_select "dt", "Tracking started"
+    assert_select "dd", "August 26, 2026"
+    assert_select "form[action='#{notion_authorization_path}'][method='post'][data-turbo='false']" do
+      assert_select "button[type='submit']", "Reauthorize Notion"
+    end
+    assert_not_includes response.body, "notion-access-token"
+    assert_not_includes response.body, "notion-refresh-token"
   end
 
   test "updates only the current user's time zone" do

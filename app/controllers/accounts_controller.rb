@@ -22,6 +22,7 @@ class AccountsController < ApplicationController
       @github_identity = @user.external_identities.github.includes(:github_connection).first
       @github_connection = @github_identity&.github_connection
       @leetcode_connection = @user.leetcode_connection
+      @notion_connection = @user.notion_connection
       @leetcode_challenge = @user.leetcode_verification_challenges
         .where(consumed_at: nil)
         .order(created_at: :desc)

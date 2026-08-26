@@ -30,6 +30,9 @@ Rails.application.routes.draw do
   get "email_verification/:token", to: "email_verifications#show", as: :email_verification
   post "email_verification/:token/confirm", to: "email_verifications#confirm", as: :confirm_email_verification
 
+  post "auth/notion", to: "notion_connections#create", as: :notion_authorization
+  get "auth/notion/callback", to: "notion_connections#callback", as: :notion_connection_callback
+
   get "auth/github/callback", to: "github_connections#callback", as: :github_connection_callback
   get "auth/failure", to: "github_connections#failure", as: :github_connection_failure
 
