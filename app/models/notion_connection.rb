@@ -3,6 +3,10 @@ class NotionConnection < ApplicationRecord
   encrypts :refresh_token
 
   belongs_to :user
+  has_many :applications,
+    class_name: "NotionApplication",
+    dependent: :destroy,
+    inverse_of: :notion_connection
 
   validates :user_id, :bot_id, uniqueness: true
   validates :workspace_id,

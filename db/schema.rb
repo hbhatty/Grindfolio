@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_26_165928) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_26_204140) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -101,11 +101,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_165928) do
     t.check_constraint "verification_attempts >= 0 AND verification_attempts <= 5", name: "leetcode_verification_challenges_attempts_in_range"
   end
 
+  create_table "notion_applications", force: :cascade do |t|
+    t.date "applied_on", null: false
+    t.text "company_name", null: false
+    t.datetime "created_at", null: false
+    t.string "current_status"
+    t.bigint "notion_connection_id", null: false
+    t.datetime "provider_last_edited_at", null: false
+    t.string "provider_page_id", null: false
+    t.text "role"
+    t.datetime "updated_at", null: false
+    t.index ["notion_connection_id", "applied_on"], name: "index_notion_applications_on_connection_and_date"
+    t.index ["notion_connection_id", "provider_page_id"], name: "index_notion_applications_on_connection_and_page", unique: true
+    t.index ["notion_connection_id"], name: "index_notion_applications_on_notion_connection_id"
+    t.check_constraint "company_name <> ''::text", name: "notion_applications_company_name_present"
+    t.check_constraint "provider_page_id::text <> ''::text", name: "notion_applications_provider_page_id_present"
+  end
+
   create_table "notion_connections", force: :cascade do |t|
     t.text "access_token", null: false
     t.datetime "authorized_at", null: false
     t.string "bot_id", null: false
     t.datetime "created_at", null: false
+    t.text "last_sync_error"
+    t.datetime "last_synced_at"
     t.string "owner_user_id"
     t.text "refresh_token", null: false
     t.date "tracking_started_on", null: false
@@ -157,6 +176,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_26_165928) do
   add_foreign_key "leetcode_connections", "users"
   add_foreign_key "leetcode_daily_activities", "leetcode_connections"
   add_foreign_key "leetcode_verification_challenges", "users"
+  add_foreign_key "notion_applications", "notion_connections"
   add_foreign_key "notion_connections", "users"
   add_foreign_key "password_credentials", "users"
   add_foreign_key "sessions", "users"
