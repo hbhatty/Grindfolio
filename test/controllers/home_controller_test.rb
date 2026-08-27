@@ -312,6 +312,37 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_select "form[action='#{leetcode_activity_update_path}']", count: 0
   end
 
+  test "renders cached Notion heatmap and day details without provider access" do
+    travel_to Time.utc(2026, 8, 26, 20) do
+      user = create_signed_in_user(time_zone: "America/Toronto")
+      connection = create_notion_connection(user)
+      connection.update!(last_synced_at: Time.current)
+      connection.applications.create!(
+        provider_page_id: "page-id",
+        applied_on: Date.new(2026, 8, 26),
+        company_name: "Example Company",
+        role: "Software Engineering Intern",
+        current_status: "Applied",
+        provider_last_edited_at: Time.current
+      )
+      provider_factory = ->(**) { flunk "Notion provider client was constructed by dashboard GET" }
+
+      with_replaced_factory(Notion::ApiClient, provider_factory) do
+        get root_url
+      end
+
+      assert_response :success
+      assert_select ".provider-card--orange", text: /Connected/
+      assert_select "section[aria-labelledby='apply-heatmap-heading']" do
+        assert_select "form[action='#{notion_activity_update_path}'] button[data-turbo-submits-with='Updating…']",
+          "Update Notion activity"
+        assert_select "button[aria-label='August 26, 2026: 1 application'][data-state='active'][data-count='1'][aria-pressed='true']"
+        assert_select "[data-heatmap-target='message']", /Example Company.*Software Engineering Intern.*Status: Applied/
+        assert_select "[data-heatmap-target='count']", "1"
+      end
+    end
+  end
+
   private
     def with_replaced_factory(factory_owner, replacement)
       original_factory = factory_owner.method(:new)
@@ -361,6 +392,19 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
         username:,
         tracking_started_on:,
         verified_at: Time.current
+      )
+    end
+
+    def create_notion_connection(user)
+      user.create_notion_connection!(
+        workspace_id: "workspace-id",
+        workspace_name: "Example workspace",
+        bot_id: "bot-id",
+        owner_user_id: "owner-user-id",
+        access_token: "access-token",
+        refresh_token: "refresh-token",
+        tracking_started_on: Date.new(2026, 8, 26),
+        authorized_at: Time.utc(2026, 8, 26, 16)
       )
     end
 end

@@ -1,0 +1,29 @@
+<article class="provider-card provider-card--orange" aria-labelledby="provider-notion-heading">
+  <div class="provider-card-heading">
+    <div class="provider-card-identity">
+      <span class="provider-icon" aria-hidden="true">N</span>
+      <div>
+        <h2 id="provider-notion-heading">Notion</h2>
+        <p>Job application activity</p>
+      </div>
+    </div>
+
+    <% if @notion_connection %>
+      <span class="provider-status"><span aria-hidden="true"></span>Connected</span>
+    <% else %>
+      <span class="provider-coming-soon">Not connected</span>
+    <% end %>
+  </div>
+
+  <% if @notion_connection %>
+    <p class="provider-card-meta">
+      <%= @notion_connection.workspace_name.presence || "Notion workspace" %> · Tracking from
+      <%= @notion_connection.tracking_started_on.to_fs(:long) %>
+    </p>
+  <% else %>
+    <p class="provider-card-meta">
+      <%= link_to "Connect from Account", account_path, class: "dashboard-link" %>.
+      Apply activity starts on the connection date; earlier applications are not imported.
+    </p>
+  <% end %>
+</article>

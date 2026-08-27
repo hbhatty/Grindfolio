@@ -1,6 +1,3 @@
-<% future_activity_cards = [
-  { key: :notion, name: "Notion", purpose: "Job applications", short_name: "N", tone: "orange", placeholder: "Application tracking will appear here." }
-] %>
 
 <main
   class="dashboard-shell"
@@ -23,14 +20,10 @@
   <section class="provider-grid" aria-label="Activity providers">
     <%= render "home/github_provider_frame" %>
     <%= render "home/leetcode_provider_card" %>
-    <% future_activity_cards.each do |provider| %>
-      <%= render "home/provider_card",
-        provider:,
-        github_connection: @github_connection,
-        github_identity: @github_identity %>
-    <% end %>
+    <%= render "home/notion_provider_card" %>
   </section>
 
   <%= render "home/github_activity_frame" %>
   <%= render "home/leetcode_activity" %>
+  <%= render "home/notion_activity" %>
 </main>

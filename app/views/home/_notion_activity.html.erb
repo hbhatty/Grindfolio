@@ -1,0 +1,78 @@
+<% selected_cell = @notion_heatmap.cells.find(&:selected) %>
+
+<section class="heatmap-card" aria-labelledby="apply-heatmap-heading" data-controller="heatmap">
+  <div class="heatmap-card-header">
+    <div>
+      <p class="heatmap-kicker">Apply</p>
+      <h2 id="apply-heatmap-heading">Notion applications</h2>
+      <p class="heatmap-caption">Each cached row counts once on its intentional Application Date. Current status is detail, not additional activity.</p>
+    </div>
+    <div class="heatmap-sync">
+      <p class="heatmap-sync-status" role="status" aria-live="polite" aria-atomic="true">
+        <% if @notion_connection&.last_sync_error.present? %>
+          <%= @notion_connection.last_sync_error %> Your saved activity is still available.
+        <% elsif @notion_connection&.last_synced_at %>
+          <% local_sync_time = @notion_connection.last_synced_at.in_time_zone(@display_time_zone) %>
+          Last updated <%= time_tag local_sync_time, local_sync_time.to_fs(:short) %> <%= local_sync_time.zone %>
+        <% elsif @notion_connection %>
+          Never updated
+        <% else %>
+          Connect Notion to begin tracking application activity.
+        <% end %>
+      </p>
+
+      <% if @notion_connection %>
+        <%= button_to "Update Notion activity",
+          notion_activity_update_path,
+          method: :post,
+          class: "heatmap-sync-action",
+          data: { turbo_submits_with: "Updating…" } %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="heatmap-months" aria-hidden="true">
+    <% previous_month = nil %>
+    <% (@heatmap_start_date..@heatmap_end_date).to_a.each_with_index do |date, index| %>
+      <% month_key = date.strftime("%Y-%m") %>
+      <% if month_key != previous_month && date.day <= 7 %>
+        <span style="grid-column: <%= (index / 7) + 2 %>;"><%= date.strftime("%b") %></span>
+        <% previous_month = month_key %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="heatmap-grid" role="grid" aria-label="Notion Apply activity for the last year, using mapped Application Dates">
+    <div class="heatmap-weekdays" aria-hidden="true">
+      <span></span><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span>
+    </div>
+    <% @notion_heatmap.cells.each do |cell| %>
+      <button
+        type="button"
+        class="heatmap-cell heatmap-cell--<%= cell.state %> heatmap-cell--<%= cell.level %>"
+        style="grid-column: <%= cell.week + 2 %>; grid-row: <%= cell.weekday + 1 %>;"
+        data-heatmap-target="day"
+        data-action="heatmap#select"
+        data-label="<%= cell.date_label %>"
+        data-count="<%= cell.application_count.nil? ? "—" : cell.application_count %>"
+        data-state="<%= cell.state %>"
+        data-message="<%= cell.detail_message %>"
+        aria-label="<%= cell.aria_label %>"
+        aria-pressed="<%= cell.selected %>"></button>
+    <% end %>
+  </div>
+
+  <div class="heatmap-footer">
+    <div class="heatmap-legend" aria-label="Application intensity legend"><span>Less</span><i class="heatmap-swatch heatmap-swatch--none"></i><i class="heatmap-swatch heatmap-swatch--first"></i><i class="heatmap-swatch heatmap-swatch--second"></i><i class="heatmap-swatch heatmap-swatch--third"></i><i class="heatmap-swatch heatmap-swatch--fourth"></i><span>More</span></div>
+    <p><span class="heatmap-outline" aria-hidden="true"></span>Not tracked before connection</p>
+  </div>
+
+  <div class="heatmap-selected-day" aria-live="polite" aria-labelledby="notion-selected-day-heading">
+    <div>
+      <p class="heatmap-selected-label">Selected day</p>
+      <h3 id="notion-selected-day-heading" data-heatmap-target="date"><%= selected_cell.date_label %></h3>
+      <p data-heatmap-target="message"><%= selected_cell.detail_message %></p>
+    </div>
+    <div class="heatmap-selected-value"><strong data-heatmap-target="count"><%= selected_cell.application_count.nil? ? "—" : selected_cell.application_count %></strong><span>application count</span></div>
+  </div>
+</section>

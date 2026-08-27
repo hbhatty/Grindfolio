@@ -22,6 +22,15 @@ class HomeController < ApplicationController
       end_date: @leetcode_heatmap_end_date,
       activities: @leetcode_activities
     )
+    @notion_connection = Current.user.notion_connection
+    @notion_applications = notion_applications_in_heatmap_range
+    @notion_heatmap = Notion::ActivityHeatmapPresenter.new(
+      connection: @notion_connection,
+      today: @github_today,
+      start_date: @heatmap_start_date,
+      end_date: @heatmap_end_date,
+      applications: @notion_applications
+    )
   end
 
   private
@@ -39,5 +48,14 @@ class HomeController < ApplicationController
       @leetcode_connection.daily_activities
         .where(activity_date: @leetcode_heatmap_start_date..@leetcode_heatmap_end_date)
         .index_by(&:activity_date)
+    end
+
+    def notion_applications_in_heatmap_range
+      return {} unless @notion_connection
+
+      @notion_connection.applications
+        .where(applied_on: @heatmap_start_date..@heatmap_end_date)
+        .order(:applied_on, :company_name)
+        .group_by(&:applied_on)
     end
 end
