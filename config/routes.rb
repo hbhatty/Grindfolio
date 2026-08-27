@@ -14,6 +14,7 @@ Rails.application.routes.draw do
 
   resource :github_activity_update, only: %i[show create]
   resource :leetcode_activity_update, only: :create
+  resource :notion_activity_update, only: :create
 
   get "sign_up", to: "signups#new", as: :sign_up
   post "sign_up", to: "signups#create"
