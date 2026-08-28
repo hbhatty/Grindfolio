@@ -1,85 +1,100 @@
 <% content_for :title, "Your Grindfolio account" %>
 
 <main class="account-shell">
-  <header class="account-header">
-    <div>
-      <p class="account-eyebrow">Settings</p>
-      <h1>Your Grindfolio account</h1>
-      <p class="account-intro">Manage your account details and the providers connected to your private activity dashboard.</p>
-    </div>
-    <%= link_to "Back to activity", root_path, class: "account-back-link" %>
+  <header class="account-masthead">
+    <%= link_to "Grindfolio", root_path, class: "auth-wordmark" %>
+
+    <nav class="account-navigation" aria-label="Primary">
+      <%= link_to "Activity", root_path %>
+      <span aria-current="page">Account</span>
+    </nav>
+  </header>
+
+  <header class="account-heading">
+    <p class="account-eyebrow">Settings</p>
+    <h1>Your Grindfolio account</h1>
+    <p class="account-intro">Manage your account details and the providers connected to your private activity dashboard.</p>
   </header>
 
   <div class="account-layout">
-    <section class="account-card" aria-labelledby="account-details-heading">
-      <div class="account-card-heading">
+    <section class="account-panel" aria-labelledby="account-details-heading">
+      <div class="account-panel-heading">
         <div>
-          <p class="account-section-label">Profile</p>
-          <h2 id="account-details-heading">Account details</h2>
+          <p class="account-section-label">Account</p>
+          <h2 id="account-details-heading">Details and preferences</h2>
         </div>
-        <span class="account-lock" aria-hidden="true">Private</span>
+        <span class="account-private-status"><span aria-hidden="true"></span>Private</span>
       </div>
 
-      <% if @verified_email_address %>
-        <dl class="account-info">
-          <div>
-            <dt>Verified email address</dt>
-            <dd><%= @verified_email_address %></dd>
-            <span class="account-badge">Verified</span>
+      <div class="account-settings">
+        <% if @verified_email_address %>
+          <div class="account-setting">
+            <h3>Email address</h3>
+            <div class="account-email-details">
+              <dl class="account-info">
+                <div>
+                  <dt>Verified email address</dt>
+                  <dd><%= @verified_email_address %></dd>
+                </div>
+              </dl>
+              <span class="account-badge">Verified</span>
+            </div>
           </div>
-        </dl>
-      <% end %>
+        <% end %>
 
-      <% if @user.errors.any? %>
-        <div class="account-errors" role="alert">
-          <h3>Check the form</h3>
-          <ul>
-            <% @user.errors.full_messages.each do |message| %>
-              <li><%= message %></li>
-            <% end %>
-          </ul>
+        <div class="account-setting">
+          <h3>Calendar settings</h3>
+          <p class="account-setting-description">Your time zone is used for local calendar dates and new tracking boundaries.</p>
+
+          <% if @user.errors.any? %>
+            <div class="form-message form-message--error" role="alert">
+              <p><strong>Check the form</strong></p>
+              <ul>
+                <% @user.errors.full_messages.each do |message| %>
+                  <li><%= message %></li>
+                <% end %>
+              </ul>
+            </div>
+          <% end %>
+
+          <%= form_with model: @user, url: account_path, method: :patch, class: "account-form" do |form| %>
+            <div class="form-field">
+              <%= form.label :time_zone, "Time zone", class: "form-label" %>
+              <%= form.select :time_zone,
+                options_for_select(User::IANA_TIME_ZONE_IDENTIFIERS, @user.time_zone),
+                { include_blank: "Select your time zone" },
+                required: true,
+                aria: { describedby: "time-zone-help" },
+                class: "form-control" %>
+              <small id="time-zone-help" class="form-help">Choose an IANA time zone, such as America/Toronto.</small>
+            </div>
+
+            <%= form.submit "Save time zone", class: "button button--primary" %>
+          <% end %>
         </div>
-      <% end %>
-
-      <div class="account-form-heading">
-        <h3>Calendar settings</h3>
-        <p>Your time zone is used when Grindfolio displays local calendar dates.</p>
       </div>
-
-      <%= form_with model: @user, url: account_path, method: :patch, class: "account-form" do |form| %>
-        <div>
-          <%= form.label :time_zone, "Time zone" %>
-          <%= form.select :time_zone,
-            options_for_select(User::IANA_TIME_ZONE_IDENTIFIERS, @user.time_zone),
-            { include_blank: "Select your time zone" },
-            required: true,
-            aria: { describedby: "time-zone-help" } %>
-          <small id="time-zone-help">Choose an IANA time zone, such as America/Toronto.</small>
-        </div>
-
-        <%= form.submit "Save time zone" %>
-      <% end %>
     </section>
 
-    <section class="account-card account-card--connections" aria-labelledby="provider-connections-heading">
-      <div class="account-card-heading">
+    <section class="account-panel" aria-labelledby="provider-connections-heading">
+      <div class="account-panel-heading">
         <div>
-          <p class="account-section-label">Data sources</p>
+          <p class="account-section-label">Connections</p>
           <h2 id="provider-connections-heading">Provider connections</h2>
+          <p class="account-panel-intro">Manage the accounts Grindfolio uses for Build, Practice, and Apply activity.</p>
         </div>
       </div>
-      <p class="account-card-intro">Connect the accounts Grindfolio uses for your private activity dashboard.</p>
 
       <div class="account-provider-list">
-        <article class="account-provider account-provider--github">
+        <article class="account-provider" aria-labelledby="github-connection-heading">
           <div class="account-provider-topline">
             <div class="account-provider-identity">
               <span class="account-provider-icon" aria-hidden="true">GH</span>
               <div>
-                <h3>GitHub</h3>
+                <h3 id="github-connection-heading">GitHub</h3>
                 <p>Build activity</p>
               </div>
             </div>
+
             <% if @github_connection %>
               <% github_status_label = case @github_connection.sync_status
               when "queued", "syncing" then "Updating"
@@ -90,7 +105,7 @@
               end %>
               <span class="account-provider-status account-provider-status--<%= @github_connection.sync_status %>"><span aria-hidden="true"></span><%= github_status_label %></span>
             <% else %>
-              <span class="account-provider-status account-provider-status--available">Available</span>
+              <span class="account-provider-status account-provider-status--available"><span aria-hidden="true"></span>Not connected</span>
             <% end %>
           </div>
 
@@ -105,31 +120,36 @@
                 <dd><%= @github_connection.tracking_started_on.to_fs(:long) %></dd>
               </div>
             </dl>
-            <%= button_to "Reauthorize GitHub",
-              "/auth/github",
-              method: :post,
-              form: { data: { turbo: false } },
-              class: "account-provider-action" %>
-            <p class="account-provider-help">Reauthorizing updates secure credentials without resetting your tracking date.</p>
+            <p class="account-provider-copy">Update Build activity from your dashboard. Reauthorizing refreshes secure credentials without resetting your tracking date.</p>
+            <div class="account-provider-actions">
+              <%= button_to "Reauthorize GitHub",
+                "/auth/github",
+                method: :post,
+                form: { data: { turbo: false } },
+                class: "button button--secondary" %>
+            </div>
           <% else %>
-            <p class="account-provider-help">Connecting proves account ownership and starts tracking from the connection date.</p>
-            <%= button_to "Connect GitHub",
-              "/auth/github",
-              method: :post,
-              form: { data: { turbo: false } },
-              class: "account-provider-action" %>
+            <p class="account-provider-copy">Connect the GitHub account you control to begin forward-only Build tracking. Activity updates remain a dashboard action.</p>
+            <div class="account-provider-actions">
+              <%= button_to "Connect GitHub",
+                "/auth/github",
+                method: :post,
+                form: { data: { turbo: false } },
+                class: "button button--secondary" %>
+            </div>
           <% end %>
         </article>
 
-        <article class="account-provider account-provider--leetcode">
+        <article class="account-provider account-provider--leetcode" aria-labelledby="leetcode-connection-heading">
           <div class="account-provider-topline">
             <div class="account-provider-identity">
               <span class="account-provider-icon" aria-hidden="true">LC</span>
               <div>
-                <h3>LeetCode</h3>
+                <h3 id="leetcode-connection-heading">LeetCode</h3>
                 <p>Practice activity</p>
               </div>
             </div>
+
             <% if @leetcode_connection %>
               <span class="account-provider-status account-provider-status--ready"><span aria-hidden="true"></span>Connected</span>
             <% elsif @leetcode_challenge&.usable? %>
@@ -141,7 +161,7 @@
             <% end %>
           </div>
 
-          <p class="account-provider-warning"><strong>Unsupported beta.</strong> LeetCode does not provide a documented API or stability guarantee for this connection.</p>
+          <p class="account-provider-warning"><strong>Unsupported beta.</strong> LeetCode does not offer a documented developer API or stability guarantee for this connection.</p>
 
           <% if @leetcode_connection %>
             <dl class="account-connection-info">
@@ -154,61 +174,67 @@
                 <dd><%= @leetcode_connection.tracking_started_on.to_fs(:long) %> UTC</dd>
               </div>
             </dl>
-            <p class="account-provider-help">Ownership is verified. Activity synchronization is not part of this checkpoint yet.</p>
+            <p class="account-provider-copy">Update current-year Practice activity manually from your dashboard. LeetCode dates remain in UTC.</p>
           <% else %>
             <% if @leetcode_challenge&.usable? %>
               <div class="account-challenge" aria-labelledby="leetcode-challenge-heading">
                 <h4 id="leetcode-challenge-heading">Verify <%= @leetcode_challenge.requested_username %></h4>
-                <p>Add this exact temporary challenge to your public LeetCode README/About Me:</p>
+                <p>Add this exact temporary challenge to your public LeetCode About Me field:</p>
                 <code class="account-challenge-code"><%= @leetcode_challenge.token %></code>
                 <ol>
-                  <li>Copy the challenge into your LeetCode README/About Me and save.</li>
+                  <li>Copy the challenge into your LeetCode About Me field and save.</li>
                   <li>Return here and verify before it expires.</li>
                   <li>Remove the challenge after Grindfolio confirms the connection.</li>
                 </ol>
-                <%= button_to "Verify LeetCode account",
-                  verify_leetcode_verification_path,
-                  method: :post,
-                  class: "account-provider-action" %>
+                <div class="account-provider-actions">
+                  <%= button_to "Verify LeetCode account",
+                    verify_leetcode_verification_path,
+                    method: :post,
+                    class: "button button--primary" %>
+                </div>
               </div>
             <% elsif @leetcode_challenge %>
-              <p class="account-provider-help">That challenge expired. Generate a new one before editing your LeetCode profile.</p>
+              <p class="account-provider-copy account-provider-copy--error">That challenge expired. Generate a new one before editing your LeetCode profile.</p>
             <% else %>
-              <p class="account-provider-help">Enter your public username. Generating a challenge makes no LeetCode request.</p>
+              <p class="account-provider-copy">Enter your public username. Generating a challenge makes no LeetCode request.</p>
             <% end %>
 
             <%= form_with url: leetcode_verification_path,
               scope: :leetcode_verification,
               method: :post,
               class: "account-provider-form" do |form| %>
-              <%= form.label :username, "LeetCode username" %>
-              <%= form.text_field :username,
-                value: @leetcode_challenge&.requested_username,
-                required: true,
-                maxlength: 64,
-                autocomplete: "off",
-                spellcheck: false,
-                aria: { describedby: "leetcode-username-help" } %>
-              <small id="leetcode-username-help">Use the username from your public LeetCode profile, not a profile URL.</small>
+              <div class="form-field">
+                <%= form.label :username, "LeetCode username", class: "form-label" %>
+                <%= form.text_field :username,
+                  value: @leetcode_challenge&.requested_username,
+                  required: true,
+                  maxlength: 64,
+                  autocomplete: "off",
+                  spellcheck: false,
+                  aria: { describedby: "leetcode-username-help" },
+                  class: "form-control" %>
+                <small id="leetcode-username-help" class="form-help">Use the username from your public LeetCode profile, not a profile URL.</small>
+              </div>
               <%= form.submit @leetcode_challenge&.usable? ? "Generate a new challenge" : "Start LeetCode verification",
-                class: "account-provider-action" %>
+                class: "button #{@leetcode_challenge&.usable? ? "button--secondary" : "button--primary"}" %>
             <% end %>
           <% end %>
         </article>
 
-        <article class="account-provider">
+        <article class="account-provider" aria-labelledby="notion-connection-heading">
           <div class="account-provider-topline">
             <div class="account-provider-identity">
               <span class="account-provider-icon" aria-hidden="true">N</span>
               <div>
-                <h3>Notion</h3>
+                <h3 id="notion-connection-heading">Notion</h3>
                 <p>Job application activity</p>
               </div>
             </div>
+
             <% if @notion_connection %>
               <span class="account-provider-status account-provider-status--ready"><span aria-hidden="true"></span>Connected</span>
             <% else %>
-              <span class="account-provider-status account-provider-status--available">Available</span>
+              <span class="account-provider-status account-provider-status--available"><span aria-hidden="true"></span>Not connected</span>
             <% end %>
           </div>
 
@@ -223,19 +249,23 @@
                 <dd><%= @notion_connection.tracking_started_on.to_fs(:long) %></dd>
               </div>
             </dl>
-            <%= button_to "Reauthorize Notion",
-              notion_authorization_path,
-              method: :post,
-              form: { data: { turbo: false } },
-              class: "account-provider-action" %>
-            <p class="account-provider-help">Reauthorizing updates secure credentials without resetting your tracking date. Application synchronization remains unavailable until a tracker is configured.</p>
+            <p class="account-provider-copy">Synchronize applications from the supported tracker template manually from your dashboard. Reauthorizing refreshes secure credentials without resetting your tracking date.</p>
+            <div class="account-provider-actions">
+              <%= button_to "Reauthorize Notion",
+                notion_authorization_path,
+                method: :post,
+                form: { data: { turbo: false } },
+                class: "button button--secondary" %>
+            </div>
           <% else %>
-            <p class="account-provider-help">Authorize read-only access and choose which Notion pages Grindfolio may access. Connecting does not synchronize application activity.</p>
-            <%= button_to "Connect Notion",
-              notion_authorization_path,
-              method: :post,
-              form: { data: { turbo: false } },
-              class: "account-provider-action" %>
+            <p class="account-provider-copy">Authorize a Notion workspace and select the supported applications tracker template. Synchronization begins only when you choose Update Notion activity on your dashboard.</p>
+            <div class="account-provider-actions">
+              <%= button_to "Connect Notion",
+                notion_authorization_path,
+                method: :post,
+                form: { data: { turbo: false } },
+                class: "button button--secondary" %>
+            </div>
           <% end %>
         </article>
       </div>

@@ -19,20 +19,23 @@ end %>
       </div>
     </div>
 
-    <% if key == :github && github_connection %>
+    <% if github_connection %>
       <span class="provider-status provider-status--<%= github_connection.sync_status %>"><span aria-hidden="true"></span><%= status_label %></span>
-    <% elsif key == :github %>
-      <%= button_to "Connect", "/auth/github", method: :post, form: { data: { turbo: false } }, class: "provider-action" %>
     <% else %>
-      <span class="provider-coming-soon">Coming soon</span>
+      <span class="provider-status provider-status--disconnected"><span aria-hidden="true"></span>Not connected</span>
     <% end %>
   </div>
 
-  <% if key == :github && github_connection %>
+  <% if github_connection %>
     <p class="provider-card-meta">Connected as <strong>@<%= github_identity.provider_username %></strong> · Tracking from <%= github_connection.tracking_started_on.to_fs(:long) %></p>
-  <% elsif key == :github %>
-    <p class="provider-card-meta">Starts tracking on connection day. Earlier commits are not imported.</p>
   <% else %>
-    <p class="provider-card-meta"><%= provider.fetch(:placeholder) %></p>
+    <p class="provider-card-meta">Tracking starts on the connection date. Earlier commits are not imported.</p>
+    <div class="provider-card-actions">
+      <%= button_to "Connect GitHub",
+        "/auth/github",
+        method: :post,
+        form: { data: { turbo: false } },
+        class: "button button--secondary provider-action" %>
+    </div>
   <% end %>
 </article>

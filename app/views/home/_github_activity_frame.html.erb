@@ -8,40 +8,41 @@
     sync_active: update_in_progress
   } do %>
   <section class="heatmap-card" aria-labelledby="build-heatmap-heading">
-    <div class="heatmap-card-header">
-      <div>
-        <p class="heatmap-kicker">Build</p>
-        <h2 id="build-heatmap-heading">GitHub activity</h2>
-        <p class="heatmap-caption">Official daily totals retain the calendar dates assigned by GitHub.</p>
-      </div>
-      <div class="heatmap-sync">
-        <p class="heatmap-sync-status" role="status" aria-live="polite" aria-atomic="true" data-github-sync-refresh-status>
-          <% if @github_connection&.sync_status_reauthorization_required? %>
-            Reconnect GitHub to continue updating activity.
-          <% elsif @github_update_message.present? %>
-            <%= @github_update_message %>
-          <% elsif update_long_running %>
-            Still updating. This is taking longer than usual; you can leave this page.
-          <% elsif update_in_progress %>
-            Updating GitHub activity…
-          <% elsif @github_connection&.sync_status_error? %>
-            GitHub activity could not be updated. Your existing activity is still available.
-          <% elsif @github_connection&.last_synced_at %>
-            <% local_sync_time = @github_connection.last_synced_at.in_time_zone(@display_time_zone) %>
-            <% if @github_connection.last_synced_at >= 1.minute.ago %>
-              <%= time_tag local_sync_time, "Updated just now" %>
-            <% else %>
-              Updated <%= time_tag local_sync_time, local_sync_time.to_fs(:short) %> <%= local_sync_time.zone %>
-            <% end %>
-          <% elsif @github_connection %>
-            Ready for first update
-          <% else %>
-            Connect GitHub to begin tracking build activity.
-          <% end %>
-        </p>
+    <header class="heatmap-card-header">
+      <p class="heatmap-kicker">Build</p>
+      <h2 id="build-heatmap-heading">GitHub activity</h2>
+      <p class="heatmap-caption">Official daily totals retain the calendar dates assigned by GitHub.</p>
+    </header>
 
+    <div class="heatmap-sync">
+      <p class="heatmap-sync-status" role="status" aria-live="polite" aria-atomic="true" data-github-sync-refresh-status>
+        <% if @github_connection&.sync_status_reauthorization_required? %>
+          Reconnect GitHub to continue updating activity.
+        <% elsif @github_update_message.present? %>
+          <%= @github_update_message %>
+        <% elsif update_long_running %>
+          Still updating. This is taking longer than usual; you can leave this page.
+        <% elsif update_in_progress %>
+          Updating GitHub activity…
+        <% elsif @github_connection&.sync_status_error? %>
+          GitHub activity could not be updated. Your existing activity is still available.
+        <% elsif @github_connection&.last_synced_at %>
+          <% local_sync_time = @github_connection.last_synced_at.in_time_zone(@display_time_zone) %>
+          <% if @github_connection.last_synced_at >= 1.minute.ago %>
+            <%= time_tag local_sync_time, "Updated just now" %>
+          <% else %>
+            Updated <%= time_tag local_sync_time, local_sync_time.to_fs(:short) %> <%= local_sync_time.zone %>
+          <% end %>
+        <% elsif @github_connection %>
+          Ready for first update
+        <% else %>
+          Connect GitHub to begin tracking build activity.
+        <% end %>
+      </p>
+
+      <div class="heatmap-sync-actions" role="group" aria-label="GitHub activity actions">
         <% if update_in_progress %>
-          <button type="button" class="heatmap-sync-action" disabled aria-disabled="true">
+          <button type="button" class="button heatmap-sync-action" disabled aria-disabled="true">
             <span class="heatmap-sync-progress" aria-hidden="true"></span>
             Updating…
           </button>
@@ -50,16 +51,23 @@
             "/auth/github",
             method: :post,
             form: { data: { turbo: false } },
-            class: "heatmap-sync-action" %>
+            class: "button button--primary heatmap-sync-action" %>
         <% elsif @github_connection %>
           <%= button_to @github_connection.sync_status_error? ? "Retry update" : "Update activity",
             github_activity_update_path,
             method: :post,
-            class: "heatmap-sync-action" %>
+            class: "button button--primary heatmap-sync-action",
+            aria: { label: @github_connection.sync_status_error? ? "Retry GitHub activity update" : "Update GitHub activity" } %>
         <% end %>
       </div>
     </div>
 
+    <div
+      class="heatmap-calendar"
+      role="region"
+      aria-labelledby="build-heatmap-heading build-heatmap-scroll-hint"
+      tabindex="0">
+      <p id="build-heatmap-scroll-hint" class="heatmap-scroll-hint">Scroll horizontally to view the full year.</p>
     <div class="heatmap-months" aria-hidden="true">
       <% previous_month = nil %>
       <% (@heatmap_start_date..@heatmap_end_date).to_a.each_with_index do |date, index| %>
@@ -112,6 +120,7 @@
           aria-label="<%= label %>"
           aria-pressed="<%= date == @github_today %>"></button>
       <% end %>
+    </div>
     </div>
 
     <div class="heatmap-footer">

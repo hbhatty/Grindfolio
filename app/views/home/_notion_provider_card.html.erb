@@ -9,9 +9,9 @@
     </div>
 
     <% if @notion_connection %>
-      <span class="provider-status"><span aria-hidden="true"></span>Connected</span>
+      <span class="provider-status provider-status--ready"><span aria-hidden="true"></span>Connected</span>
     <% else %>
-      <span class="provider-coming-soon">Not connected</span>
+      <span class="provider-status provider-status--disconnected"><span aria-hidden="true"></span>Not connected</span>
     <% end %>
   </div>
 
@@ -22,8 +22,8 @@
     </p>
   <% else %>
     <p class="provider-card-meta">
-      <%= link_to "Connect from Account", account_path, class: "dashboard-link" %>.
-      Apply activity starts on the connection date; earlier applications are not imported.
+      <%= link_to "Connect from Account", account_path, class: "provider-card-link" %>.
+      Tracking starts on the connection date; earlier applications are not imported.
     </p>
   <% end %>
 </article>

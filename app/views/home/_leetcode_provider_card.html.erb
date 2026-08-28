@@ -8,18 +8,24 @@
       </div>
     </div>
 
-    <span class="provider-coming-soon">Unsupported beta</span>
+    <% if @leetcode_connection %>
+      <span class="provider-status provider-status--ready"><span aria-hidden="true"></span>Connected</span>
+    <% else %>
+      <span class="provider-status provider-status--disconnected"><span aria-hidden="true"></span>Not connected</span>
+    <% end %>
   </div>
 
   <% if @leetcode_connection %>
     <p class="provider-card-meta">
+      <span class="provider-disclosure">Unsupported beta.</span>
       Connected as <strong>@<%= @leetcode_connection.username %></strong> · Tracking from
       <%= @leetcode_connection.tracking_started_on.to_fs(:long) %> (UTC)
     </p>
   <% else %>
     <p class="provider-card-meta">
-      <%= link_to "Connect from Account", account_path, class: "dashboard-link" %>.
-      Practice activity starts on the UTC connection date; earlier submissions are not imported.
+      <span class="provider-disclosure">Unsupported beta.</span>
+      <%= link_to "Connect from Account", account_path, class: "provider-card-link" %>.
+      Tracking starts on the UTC connection date; earlier submissions are not imported.
     </p>
   <% end %>
 </article>
