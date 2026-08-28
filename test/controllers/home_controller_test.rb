@@ -17,8 +17,8 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get root_url
 
     assert_response :success
-    assert_select "h1", "Grindfolio"
-    assert_select "p", "Your developer journey, mapped daily."
+    assert_select "h1.marketing-wordmark", "Grindfolio"
+    assert_select ".marketing-lede", "Track building, practice, and job applications on one private daily timeline."
     assert_select "a[href='#{sign_up_path}']", "Create an account"
     assert_select "a[href='#{sign_in_path}']", "Sign in"
     assert_select "a[href='#{account_path}']", count: 0

@@ -1,52 +1,66 @@
 <% content_for :title, "Create your Grindfolio account" %>
 
-<main>
-  <h1>Create your Grindfolio account</h1>
-  <p>Use your email address to create a provider-independent Grindfolio account.</p>
+<main class="auth-shell">
+  <section class="auth-panel" aria-labelledby="sign-up-heading">
+    <%= link_to "Grindfolio", root_path, class: "auth-wordmark" %>
 
-  <% if @password_credential.errors.any? %>
-    <div role="alert">
-      <h2>Check the form</h2>
-      <ul>
-        <% @password_credential.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+    <header class="auth-heading">
+      <h1 id="sign-up-heading">Create your Grindfolio account</h1>
+      <p class="auth-intro">Use your email address to create a private Grindfolio account.</p>
+    </header>
 
-  <%= form_with model: @password_credential, scope: :signup, url: sign_up_path, method: :post do |form| %>
-    <div>
-      <%= form.label :email_address, "Email address" %>
-      <%= form.email_field :email_address,
-        autocomplete: "email",
-        required: true,
-        maxlength: 254,
-        autofocus: true %>
-    </div>
+    <% if @password_credential.errors.any? %>
+      <div class="form-message form-message--error" role="alert">
+        <h2>Check the form</h2>
+        <ul>
+          <% @password_credential.errors.full_messages.each do |message| %>
+            <li><%= message %></li>
+          <% end %>
+        </ul>
+      </div>
+    <% end %>
 
-    <div>
-      <%= form.label :password, "Password" %>
-      <%= form.password_field :password,
-        value: nil,
-        autocomplete: "new-password",
-        required: true,
-        minlength: PasswordCredential::PASSWORD_MINIMUM_LENGTH,
-        maxlength: PasswordCredential::PASSWORD_MAXIMUM_BYTES,
-        aria: { describedby: "password-help" } %>
-      <small id="password-help">Use at least 8 characters. Passwords must be no more than 72 bytes; some characters use more than one byte.</small>
-    </div>
+    <%= form_with model: @password_credential, scope: :signup, url: sign_up_path, method: :post, class: "auth-form" do |form| %>
+      <div class="form-field">
+        <%= form.label :email_address, "Email address", class: "form-label" %>
+        <%= form.email_field :email_address,
+          autocomplete: "email",
+          required: true,
+          maxlength: 254,
+          size: nil,
+          autofocus: true,
+          class: "form-control" %>
+      </div>
 
-    <div>
-      <%= form.label :password_confirmation, "Confirm password" %>
-      <%= form.password_field :password_confirmation,
-        value: nil,
-        autocomplete: "new-password",
-        required: true,
-        minlength: PasswordCredential::PASSWORD_MINIMUM_LENGTH,
-        maxlength: PasswordCredential::PASSWORD_MAXIMUM_BYTES %>
-    </div>
+      <div class="form-field">
+        <%= form.label :password, "Password", class: "form-label" %>
+        <%= form.password_field :password,
+          value: nil,
+          autocomplete: "new-password",
+          required: true,
+          minlength: PasswordCredential::PASSWORD_MINIMUM_LENGTH,
+          maxlength: PasswordCredential::PASSWORD_MAXIMUM_BYTES,
+          size: nil,
+          aria: { describedby: "password-help" },
+          class: "form-control" %>
+        <small id="password-help" class="form-help">Use at least 8 characters. Passwords must be no more than 72 bytes; some characters use more than one byte.</small>
+      </div>
 
-    <%= form.submit "Create account" %>
-  <% end %>
+      <div class="form-field">
+        <%= form.label :password_confirmation, "Confirm password", class: "form-label" %>
+        <%= form.password_field :password_confirmation,
+          value: nil,
+          autocomplete: "new-password",
+          required: true,
+          minlength: PasswordCredential::PASSWORD_MINIMUM_LENGTH,
+          maxlength: PasswordCredential::PASSWORD_MAXIMUM_BYTES,
+          size: nil,
+          class: "form-control" %>
+      </div>
+
+      <%= form.submit "Create account", class: "button button--primary form-submit" %>
+    <% end %>
+
+    <p class="auth-footer">Already have an account? <%= link_to "Sign in", sign_in_path %></p>
+  </section>
 </main>

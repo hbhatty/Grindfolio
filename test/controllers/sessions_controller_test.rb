@@ -17,14 +17,21 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     get sign_in_url
 
     assert_response :success
+    assert_select "a.auth-wordmark[href='#{root_path}']", "Grindfolio"
     assert_select "h1", "Sign in to Grindfolio"
     assert_select "form[action='#{sign_in_path}'][method='post']"
     assert_select "label[for='session_email_address']", "Email address"
-    assert_select "input[type='email'][name='session[email_address]'][autocomplete='email'][required][maxlength='254']"
+    assert_select "input[type='email'][name='session[email_address]'][autocomplete='email'][required][maxlength='254']" do |inputs|
+      inputs.each { |input| assert_nil input["size"] }
+    end
     assert_select "label[for='session_password']", "Password"
     assert_select "input[type='password'][name='session[password]'][autocomplete='current-password'][required][maxlength='72']" do |inputs|
-      inputs.each { |input| assert_nil input["value"] }
+      inputs.each do |input|
+        assert_nil input["size"]
+        assert_nil input["value"]
+      end
     end
+    assert_select "a[href='#{sign_up_path}']", "Create an account"
   end
 
   test "authenticates a verified credential after normalizing the email" do

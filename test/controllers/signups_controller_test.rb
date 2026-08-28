@@ -20,15 +20,23 @@ class SignupsControllerTest < ActionDispatch::IntegrationTest
     get sign_up_url
 
     assert_response :success
+    assert_select "a.auth-wordmark[href='#{root_path}']", "Grindfolio"
     assert_select "h1", "Create your Grindfolio account"
     assert_select "form[action='#{sign_up_path}'][method='post']"
     assert_select "label[for='signup_email_address']", "Email address"
-    assert_select "input[type='email'][name='signup[email_address]'][autocomplete='email'][required][maxlength='254']"
+    assert_select "input[type='email'][name='signup[email_address]'][autocomplete='email'][required][maxlength='254']" do |inputs|
+      inputs.each { |input| assert_nil input["size"] }
+    end
     assert_select "label[for='signup_password']", "Password"
-    assert_select "input[type='password'][name='signup[password]'][autocomplete='new-password'][required][minlength='8'][maxlength='72']"
+    assert_select "input[type='password'][name='signup[password]'][autocomplete='new-password'][required][minlength='8'][maxlength='72']" do |inputs|
+      inputs.each { |input| assert_nil input["size"] }
+    end
     assert_select "label[for='signup_password_confirmation']", "Confirm password"
-    assert_select "input[type='password'][name='signup[password_confirmation]'][autocomplete='new-password'][required][minlength='8'][maxlength='72']"
+    assert_select "input[type='password'][name='signup[password_confirmation]'][autocomplete='new-password'][required][minlength='8'][maxlength='72']" do |inputs|
+      inputs.each { |input| assert_nil input["size"] }
+    end
     assert_select "small#password-help", /72 bytes/
+    assert_select "a[href='#{sign_in_path}']", "Sign in"
   end
 
   test "GET renders the check-email page without exposing an address or token" do

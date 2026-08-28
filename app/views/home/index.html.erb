@@ -4,9 +4,16 @@
   <%= render "activity_dashboard" %>
 <% else %>
   <main class="marketing-home">
-    <h1>Grindfolio</h1>
-    <p>Your developer journey, mapped daily.</p>
-    <p><%= link_to "Create an account", sign_up_path %></p>
-    <p><%= link_to "Sign in", sign_in_path %></p>
+    <section class="marketing-entry" aria-labelledby="marketing-heading">
+      <h1 id="marketing-heading" class="marketing-wordmark">Grindfolio</h1>
+      <p class="marketing-lede">Track building, practice, and job applications on one private daily timeline.</p>
+
+      <div class="marketing-actions">
+        <%= link_to "Create an account", sign_up_path, class: "button button--primary" %>
+        <%= link_to "Sign in", sign_in_path, class: "button button--secondary" %>
+      </div>
+
+      <p class="marketing-assurance"><span aria-hidden="true"></span>Private by default. Activity updates only when you ask.</p>
+    </section>
   </main>
 <% end %>

@@ -1,35 +1,47 @@
 <% content_for :title, "Sign in to Grindfolio" %>
 
-<main>
-  <h1>Sign in to Grindfolio</h1>
-  <p>Use your verified email address and password to continue.</p>
+<main class="auth-shell">
+  <section class="auth-panel" aria-labelledby="sign-in-heading">
+    <%= link_to "Grindfolio", root_path, class: "auth-wordmark" %>
 
-  <% if @password_credential.errors.any? %>
-    <div role="alert">
-      <p>Invalid email address or password.</p>
-    </div>
-  <% end %>
+    <header class="auth-heading">
+      <h1 id="sign-in-heading">Sign in to Grindfolio</h1>
+      <p class="auth-intro">Use your verified email address and password to continue.</p>
+    </header>
 
-  <%= form_with scope: :session, url: sign_in_path, method: :post do |form| %>
-    <div>
-      <%= form.label :email_address, "Email address" %>
-      <%= form.email_field :email_address,
-        value: @password_credential.email_address,
-        autocomplete: "email",
-        required: true,
-        maxlength: 254,
-        autofocus: true %>
-    </div>
+    <% if @password_credential.errors.any? %>
+      <div class="form-message form-message--error" role="alert">
+        <p>Invalid email address or password.</p>
+      </div>
+    <% end %>
 
-    <div>
-      <%= form.label :password, "Password" %>
-      <%= form.password_field :password,
-        value: nil,
-        autocomplete: "current-password",
-        required: true,
-        maxlength: PasswordCredential::PASSWORD_MAXIMUM_BYTES %>
-    </div>
+    <%= form_with scope: :session, url: sign_in_path, method: :post, class: "auth-form" do |form| %>
+      <div class="form-field">
+        <%= form.label :email_address, "Email address", class: "form-label" %>
+        <%= form.email_field :email_address,
+          value: @password_credential.email_address,
+          autocomplete: "email",
+          required: true,
+          maxlength: 254,
+          size: nil,
+          autofocus: true,
+          class: "form-control" %>
+      </div>
 
-    <%= form.submit "Sign in" %>
-  <% end %>
+      <div class="form-field">
+        <%= form.label :password, "Password", class: "form-label" %>
+        <%= form.password_field :password,
+          value: nil,
+          autocomplete: "current-password",
+          required: true,
+          maxlength: PasswordCredential::PASSWORD_MAXIMUM_BYTES,
+          size: nil,
+          class: "form-control" %>
+      </div>
+
+      <%= form.submit "Sign in", class: "button button--primary form-submit" %>
+    <% end %>
+
+    <p class="auth-footer">New to Grindfolio? <%= link_to "Create an account", sign_up_path %></p>
+  </section>
 </main>
