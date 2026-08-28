@@ -19,8 +19,11 @@ class EmailVerificationsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :success
-    assert_select "h1", "Verify your email"
+    assert_select "a.auth-wordmark[href='#{root_path}']", "Grindfolio"
+    assert_select "section[aria-labelledby='email-verification-heading']"
+    assert_select "h1#email-verification-heading", "Verify your email"
     assert_select "form[action='#{confirm_email_verification_path(token: @token)}'][method='post']"
+    assert_select "input[type='submit'][value='Verify email']"
     assert_nil response.cookies[EmailVerificationsController::SESSION_COOKIE_NAME.to_s]
   end
 
@@ -30,8 +33,11 @@ class EmailVerificationsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :unprocessable_entity
-    assert_select "h1", "Verification link unavailable"
+    assert_select "a.auth-wordmark[href='#{root_path}']", "Grindfolio"
+    assert_select "section[aria-labelledby='invalid-verification-heading']"
+    assert_select "h1#invalid-verification-heading", "Verification link unavailable"
     assert_select "p", /invalid, expired, or has already been used/
+    assert_select "a[href='#{new_email_verification_resend_path}']", "Request another verification email"
   end
 
   test "GET rejects an expired token" do

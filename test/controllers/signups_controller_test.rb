@@ -43,7 +43,10 @@ class SignupsControllerTest < ActionDispatch::IntegrationTest
     get sign_up_success_url
 
     assert_response :success
-    assert_select "h1", "Check your email"
+    assert_select "a.auth-wordmark[href='#{root_path}']", "Grindfolio"
+    assert_select "section[aria-labelledby='signup-success-heading']"
+    assert_select "h1#signup-success-heading", "Check your email"
+    assert_select "a[href='#{new_email_verification_resend_path}']", "Request another verification email"
     assert_not_includes response.body, "developer@example.com"
     assert_no_verification_token_link
   end
@@ -142,7 +145,10 @@ class SignupsControllerTest < ActionDispatch::IntegrationTest
     post sign_up_path, params: invalid_params
 
     assert_response :too_many_requests
-    assert_select "h1", "Please try again later"
+    assert_select "a.auth-wordmark[href='#{root_path}']", "Grindfolio"
+    assert_select "section[aria-labelledby='signup-rate-limit-heading']"
+    assert_select "h1#signup-rate-limit-heading", "Please try again later"
+    assert_select "a[href='#{sign_up_path}']", "Try signing up again"
   end
 
   private

@@ -104,7 +104,10 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     post sign_in_path, params: invalid_params
 
     assert_response :too_many_requests
-    assert_select "h1", "Please try again later"
+    assert_select "a.auth-wordmark[href='#{root_path}']", "Grindfolio"
+    assert_select "section[aria-labelledby='sign-in-rate-limit-heading']"
+    assert_select "h1#sign-in-rate-limit-heading", "Please try again later"
+    assert_select "a[href='#{sign_in_path}']", "Try signing in again"
   end
 
   test "signing in requires a CSRF token when forgery protection is enabled" do

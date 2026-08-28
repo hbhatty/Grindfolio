@@ -1,6 +1,18 @@
 <% content_for :title, "Verification link unavailable" %>
 
-<main>
-  <h1>Verification link unavailable</h1>
-  <p>This verification link is invalid, expired, or has already been used.</p>
+<main class="auth-shell">
+  <section class="auth-panel" aria-labelledby="invalid-verification-heading">
+    <%= link_to "Grindfolio", root_path, class: "auth-wordmark" %>
+
+    <header class="auth-heading">
+      <h1 id="invalid-verification-heading">Verification link unavailable</h1>
+      <div class="auth-copy">
+        <p>This verification link is invalid, expired, or has already been used.</p>
+      </div>
+    </header>
+
+    <div class="auth-actions">
+      <%= link_to "Request another verification email", new_email_verification_resend_path, class: "button button--primary" %>
+    </div>
+  </section>
 </main>

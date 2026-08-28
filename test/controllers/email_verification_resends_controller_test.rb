@@ -21,11 +21,17 @@ class EmailVerificationResendsControllerTest < ActionDispatch::IntegrationTest
     get new_email_verification_resend_url
 
     assert_response :success
-    assert_select "h1", "Resend verification email"
+    assert_select "a.auth-wordmark[href='#{root_path}']", "Grindfolio"
+    assert_select "section[aria-labelledby='verification-resend-heading']"
+    assert_select "h1#verification-resend-heading", "Resend verification email"
     assert_select "form[action='#{email_verification_resend_path}'][method='post']"
     assert_select "label[for='email_verification_resend_email_address']", "Email address"
-    assert_select "input[type='email'][name='email_verification_resend[email_address]'][autocomplete='email'][required][maxlength='254']"
-    assert_select "input[name='email_verification_resend[email_address]'][value]", count: 0
+    assert_select "input[type='email'][name='email_verification_resend[email_address]'][autocomplete='email'][required][maxlength='254']" do |inputs|
+      inputs.each do |input|
+        assert_nil input["size"]
+        assert_nil input["value"]
+      end
+    end
   end
 
   test "signup success page links to the resend form" do
@@ -33,6 +39,17 @@ class EmailVerificationResendsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "a[href='#{new_email_verification_resend_path}']", /Request another verification email/
+  end
+
+  test "GET renders the neutral accepted response with a sign-in action" do
+    get email_verification_resend_accepted_url
+
+    assert_response :success
+    assert_select "a.auth-wordmark[href='#{root_path}']", "Grindfolio"
+    assert_select "section[aria-labelledby='verification-resend-accepted-heading']"
+    assert_select "h1#verification-resend-accepted-heading", "Check your email"
+    assert_select "p", /If an unverified Grindfolio account exists/
+    assert_select "a[href='#{sign_in_path}']", "Continue to sign in"
   end
 
   test "normalizes a pending address and queues exactly one verification email" do
@@ -109,7 +126,10 @@ class EmailVerificationResendsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :too_many_requests
-    assert_select "h1", "Please try again later"
+    assert_select "a.auth-wordmark[href='#{root_path}']", "Grindfolio"
+    assert_select "section[aria-labelledby='verification-resend-rate-limit-heading']"
+    assert_select "h1#verification-resend-rate-limit-heading", "Please try again later"
+    assert_select "a[href='#{new_email_verification_resend_path}']", "Try requesting another email"
   end
 
   test "does not queue email without a valid CSRF token" do

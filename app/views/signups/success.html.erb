@@ -1,8 +1,17 @@
 <% content_for :title, "Check your email" %>
 
-<main>
-  <h1>Check your email</h1>
-  <p>We sent a verification link to the email address you provided.</p>
-  <p>Open the link to verify your email and finish signing in.</p>
-  <p><%= link_to "Didn't receive it? Request another verification email", new_email_verification_resend_path %></p>
+<main class="auth-shell">
+  <section class="auth-panel" aria-labelledby="signup-success-heading">
+    <%= link_to "Grindfolio", root_path, class: "auth-wordmark" %>
+
+    <header class="auth-heading">
+      <h1 id="signup-success-heading">Check your email</h1>
+      <div class="auth-copy">
+        <p>We sent a verification link to the email address you provided.</p>
+        <p>Open the link to verify your email and finish signing in.</p>
+      </div>
+    </header>
+
+    <p class="auth-footer">Didn't receive it? <%= link_to "Request another verification email", new_email_verification_resend_path %></p>
+  </section>
 </main>

@@ -112,7 +112,10 @@ class GithubConnectionsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :unprocessable_entity
-    assert_select "h1", "GitHub connection was not completed"
+    assert_select "a.auth-wordmark[href='#{root_path}']", "Grindfolio"
+    assert_select "section[aria-labelledby='github-connection-failure-heading']"
+    assert_select "h1#github-connection-failure-heading", "GitHub connection was not completed"
+    assert_select "a[href='#{account_path}']", "Back to account"
     assert_not_includes response.body, "temporary-code"
   end
 

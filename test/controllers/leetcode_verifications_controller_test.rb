@@ -152,6 +152,26 @@ class LeetcodeVerificationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Your LeetCode account is already connected.", flash[:notice]
   end
 
+  test "rate limits verification attempts without making a provider request" do
+    sign_in_as(create_verified_user)
+
+    10.times do |attempt|
+      post leetcode_verification_path,
+        params: { leetcode_verification: { username: "example-user-#{attempt}" } }
+      assert_response :see_other
+    end
+
+    post leetcode_verification_path,
+      params: { leetcode_verification: { username: "example-user-final" } }
+
+    assert_response :too_many_requests
+    assert_select "a.auth-wordmark[href='#{root_path}']", "Grindfolio"
+    assert_select "section[aria-labelledby='rate-limit-heading']"
+    assert_select "h1#rate-limit-heading", "Wait before trying again"
+    assert_select "p", /No provider request was made/
+    assert_select "a[href='#{account_path}']", "Return to your account"
+  end
+
   test "challenge generation requires a CSRF token when forgery protection is enabled" do
     user = create_verified_user
     sign_in_as(user)

@@ -72,7 +72,11 @@ button, a, select, input { font: inherit; }
 .auth-wordmark:focus-visible, .auth-footer a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
 .auth-heading { margin-top: 3rem; }
 .auth-heading h1 { font-size: clamp(1.75rem, 5vw, 2rem); letter-spacing: -0.05em; line-height: 1.1; margin: 0; }
-.auth-intro { color: var(--color-text-muted); font-size: 0.92rem; line-height: 1.6; margin: 0.75rem 0 0; }
+.auth-intro, .auth-copy { color: var(--color-text-muted); font-size: 0.92rem; line-height: 1.6; margin: var(--space-3) 0 0; }
+.auth-copy { display: grid; gap: var(--space-3); overflow-wrap: anywhere; }
+.auth-copy p { margin: 0; }
+.auth-actions { align-items: center; display: flex; flex-wrap: wrap; gap: var(--space-3); margin-top: 2rem; }
+.auth-actions .button { cursor: pointer; }
 .form-message { border: 1px solid var(--color-border); border-radius: var(--radius-control); font-size: 0.86rem; line-height: 1.5; margin-top: 1.5rem; padding: 0.75rem 0.85rem; }
 .form-message p { margin: 0; }
 .form-message h2 { font-size: 0.86rem; margin: 0; }

@@ -1,6 +1,18 @@
 <% content_for :title, "Please try again later" %>
 
-<main>
-  <h1>Please try again later</h1>
-  <p>We received several signup attempts from this network. Please wait a few minutes before trying again.</p>
+<main class="auth-shell">
+  <section class="auth-panel" aria-labelledby="signup-rate-limit-heading">
+    <%= link_to "Grindfolio", root_path, class: "auth-wordmark" %>
+
+    <header class="auth-heading">
+      <h1 id="signup-rate-limit-heading">Please try again later</h1>
+      <div class="auth-copy">
+        <p>We received several signup attempts from this network. Please wait a few minutes before trying again.</p>
+      </div>
+    </header>
+
+    <div class="auth-actions">
+      <%= link_to "Try signing up again", sign_up_path, class: "button button--primary" %>
+    </div>
+  </section>
 </main>

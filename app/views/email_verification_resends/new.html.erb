@@ -1,18 +1,26 @@
 <% content_for :title, "Resend verification email" %>
 
-<main>
-  <h1>Resend verification email</h1>
-  <p>Enter the email address you used to create your Grindfolio account.</p>
+<main class="auth-shell">
+  <section class="auth-panel" aria-labelledby="verification-resend-heading">
+    <%= link_to "Grindfolio", root_path, class: "auth-wordmark" %>
 
-  <%= form_with url: email_verification_resend_path, scope: :email_verification_resend, method: :post do |form| %>
-    <div>
-      <%= form.label :email_address, "Email address" %>
-      <%= form.email_field :email_address,
-        required: true,
-        autocomplete: "email",
-        maxlength: 254 %>
-    </div>
+    <header class="auth-heading">
+      <h1 id="verification-resend-heading">Resend verification email</h1>
+      <p class="auth-intro">Enter the email address you used to create your Grindfolio account.</p>
+    </header>
 
-    <%= form.submit "Send verification email" %>
-  <% end %>
+    <%= form_with url: email_verification_resend_path, scope: :email_verification_resend, method: :post, class: "auth-form" do |form| %>
+      <div class="form-field">
+        <%= form.label :email_address, "Email address", class: "form-label" %>
+        <%= form.email_field :email_address,
+          required: true,
+          autocomplete: "email",
+          maxlength: 254,
+          size: nil,
+          class: "form-control" %>
+      </div>
+
+      <%= form.submit "Send verification email", class: "button button--primary form-submit" %>
+    <% end %>
+  </section>
 </main>

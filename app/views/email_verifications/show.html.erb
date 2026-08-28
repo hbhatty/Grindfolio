@@ -1,10 +1,18 @@
 <% content_for :title, "Verify your email" %>
 
-<main>
-  <h1>Verify your email</h1>
-  <p>Confirm that <strong><%= @password_credential.email_address %></strong> belongs to you.</p>
+<main class="auth-shell">
+  <section class="auth-panel" aria-labelledby="email-verification-heading">
+    <%= link_to "Grindfolio", root_path, class: "auth-wordmark" %>
 
-  <%= form_with url: confirm_email_verification_path(token: @verification_token), method: :post do %>
-    <%= submit_tag "Verify email" %>
-  <% end %>
+    <header class="auth-heading">
+      <h1 id="email-verification-heading">Verify your email</h1>
+      <div class="auth-copy">
+        <p>Confirm that <strong><%= @password_credential.email_address %></strong> belongs to you.</p>
+      </div>
+    </header>
+
+    <%= form_with url: confirm_email_verification_path(token: @verification_token), method: :post, class: "auth-actions" do %>
+      <%= submit_tag "Verify email", class: "button button--primary" %>
+    <% end %>
+  </section>
 </main>

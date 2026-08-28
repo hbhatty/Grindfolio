@@ -99,8 +99,11 @@ class NotionConnectionsControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :unprocessable_entity
+    assert_select "a.auth-wordmark[href='#{root_path}']", "Grindfolio"
     assert_not_includes response.body, "provider-secret-description"
-    assert_select "h1", "Notion could not be connected"
+    assert_select "section[aria-labelledby='notion-connection-failure-heading']"
+    assert_select "h1#notion-connection-failure-heading", "Notion could not be connected"
+    assert_select "a[href='#{account_path}']", "Return to your account"
   end
 
   test "starting authorization requires a CSRF token when forgery protection is enabled" do
