@@ -79,7 +79,8 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
       assert_select "form[action='/auth/github'][method='post'][data-turbo='false']" do
         assert_select "button[type='submit']", "Connect GitHub"
       end
-      assert_select ".account-provider--leetcode", text: /Unsupported beta/
+      assert_select ".account-provider--leetcode", text: /Unofficial integration.*use it at your discretion/
+      assert_select ".account-provider--leetcode .account-provider-status--pending", "Unofficial beta"
       assert_select "form[action='#{leetcode_verification_path}'][method='post']" do
         assert_select "label[for='leetcode_verification_username']", "LeetCode username"
         assert_select "input[name='leetcode_verification[username]'][required][maxlength='64']"

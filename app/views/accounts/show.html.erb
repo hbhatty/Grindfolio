@@ -157,11 +157,11 @@
             <% elsif @leetcode_challenge %>
               <span class="account-provider-status account-provider-status--error"><span aria-hidden="true"></span>Challenge expired</span>
             <% else %>
-              <span class="account-provider-status account-provider-status--pending"><span aria-hidden="true"></span>Unsupported beta</span>
+              <span class="account-provider-status account-provider-status--pending"><span aria-hidden="true"></span>Unofficial beta</span>
             <% end %>
           </div>
 
-          <p class="account-provider-warning"><strong>Unsupported beta.</strong> LeetCode does not offer a documented developer API or stability guarantee for this connection.</p>
+          <p class="account-provider-warning"><strong>Unofficial integration.</strong> This experimental connection uses an undocumented public LeetCode interface and is not affiliated with or endorsed by LeetCode. It may change or become unavailable; use it at your discretion.</p>
 
           <% if @leetcode_connection %>
             <dl class="account-connection-info">

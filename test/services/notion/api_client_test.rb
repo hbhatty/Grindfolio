@@ -1,7 +1,7 @@
 require "test_helper"
 
 class Notion::ApiClientTest < ActiveSupport::TestCase
-  DATA_SOURCE_ID = "4545a665-49e3-825d-8b36-87141868ab3d"
+  DATA_SOURCE_ID = "00000000-0000-8000-8000-000000000001"
 
   class FakeHttp
     attr_reader :requests

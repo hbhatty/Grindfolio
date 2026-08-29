@@ -17,13 +17,13 @@
 
   <% if @leetcode_connection %>
     <p class="provider-card-meta">
-      <span class="provider-disclosure">Unsupported beta.</span>
+      <span class="provider-disclosure">Unofficial beta.</span>
       Connected as <strong>@<%= @leetcode_connection.username %></strong> · Tracking from
       <%= @leetcode_connection.tracking_started_on.to_fs(:long) %> (UTC)
     </p>
   <% else %>
     <p class="provider-card-meta">
-      <span class="provider-disclosure">Unsupported beta.</span>
+      <span class="provider-disclosure">Unofficial beta.</span>
       <%= link_to "Connect from Account", account_path, class: "provider-card-link" %>.
       Tracking starts on the UTC connection date; earlier submissions are not imported.
     </p>

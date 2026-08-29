@@ -255,7 +255,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
 
       assert_response :success
       assert_select ".provider-card--blue", text: /Connected as @CanonicalUser/
-      assert_select ".provider-card--blue", text: /Unsupported beta/
+      assert_select ".provider-card--blue", text: /Unofficial beta/
       assert_select "section[aria-labelledby='practice-heatmap-heading']" do
         assert_select ".heatmap-caption", text: /LeetCode date \(UTC\).*not rebucketed/
         assert_select ".heatmap-sync-status", text: /Last updated.*UTC/
