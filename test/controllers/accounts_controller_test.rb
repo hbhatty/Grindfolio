@@ -20,6 +20,17 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to sign_in_path
     assert_equal "Please sign in to continue.", flash[:alert]
     assert_not_includes response.body, "developer@example.com"
+    follow_redirect!
+    assert_response :success
+    assert_not_includes response.body, "developer@example.com"
+    assert_select ".flash-stack[data-turbo-temporary]", count: 1 do
+      assert_select ".flash-message.flash-message--alert[role='alert'][aria-atomic='true'][data-controller~='flash-message']", count: 1 do
+        assert_select ".flash-message__marker[aria-hidden='true']", count: 1
+        assert_select ".flash-message__text", "Please sign in to continue."
+        assert_select "button.flash-message__dismiss[type='button'][data-action='flash-message#dismiss']", "Dismiss"
+      end
+    end
+    assert_select ".flash-stack[role], .flash-stack[aria-live]", count: 0
   end
 
   test "requires authentication before updating an account" do

@@ -66,7 +66,14 @@ class EmailVerificationsControllerTest < ActionDispatch::IntegrationTest
     assert_equal session.expires_at.to_i, set_cookie.match(/expires=([^;]+)/i).then { |match| Time.httpdate(match[1]).to_i }
 
     follow_redirect!
-    assert_select "[role='status']", "Your email has been verified."
+    assert_select ".flash-stack[data-turbo-temporary]", count: 1 do
+      assert_select ".flash-message.flash-message--notice[role='status'][aria-atomic='true'][data-controller~='flash-message']", count: 1 do
+        assert_select ".flash-message__marker[aria-hidden='true']", count: 1
+        assert_select ".flash-message__text", "Your email has been verified."
+        assert_select "button.flash-message__dismiss[type='button'][data-action='flash-message#dismiss']", "Dismiss"
+      end
+    end
+    assert_select ".flash-stack[role], .flash-stack[aria-live]", count: 0
   end
 
   test "POST is idempotent when the same token is replayed" do

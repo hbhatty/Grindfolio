@@ -53,6 +53,16 @@
 body { background: var(--color-background); color: var(--color-text); margin: 0; min-height: 100vh; }
 button, a, select, input { font: inherit; }
 
+.flash-stack { box-sizing: border-box; display: grid; gap: var(--space-2); left: 50%; max-width: 32rem; pointer-events: none; position: fixed; top: 1.5rem; transform: translateX(-50%); width: 40vw; z-index: 10; }
+.flash-message { align-items: start; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-control); box-sizing: border-box; display: grid; font-size: 0.86rem; gap: var(--space-3); grid-template-columns: auto minmax(0, 1fr) auto; line-height: 1.5; padding: var(--space-3); pointer-events: auto; }
+.flash-message__marker { border-radius: 50%; height: var(--space-2); margin-top: var(--space-2); width: var(--space-2); }
+.flash-message--notice .flash-message__marker { background: var(--color-status-success); }
+.flash-message--alert .flash-message__marker { background: var(--color-status-error-marker); }
+.flash-message__text { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.flash-message__dismiss { background: transparent; border: 0; color: var(--color-text-muted); cursor: pointer; font-size: var(--font-size-control); font-weight: 700; padding: var(--space-2); white-space: nowrap; }
+.flash-message__dismiss:hover { color: var(--color-text); }
+.flash-message__dismiss:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
+
 .marketing-home { align-items: center; box-sizing: border-box; display: grid; margin: 0 auto; max-width: 72rem; min-height: 100vh; padding: clamp(2rem, 6vw, 4rem) clamp(1rem, 4vw, 3rem); }
 .marketing-entry { max-width: 34rem; width: 100%; }
 .marketing-wordmark { color: var(--color-text); font-size: clamp(2rem, 5vw, 2.5rem); font-weight: 760; letter-spacing: -0.055em; line-height: 1; margin: 0; }
@@ -275,6 +285,7 @@ button, a, select, input { font: inherit; }
 }
 
 @media (max-width: 650px) {
+  .flash-stack { bottom: 1rem; left: 1rem; max-width: none; right: 1rem; top: auto; transform: none; width: auto; }
   .marketing-home { padding-inline: 1rem; }
   .marketing-actions { align-items: stretch; flex-direction: column; }
   .button { width: 100%; }

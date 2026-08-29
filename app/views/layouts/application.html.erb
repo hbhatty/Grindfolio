@@ -24,8 +24,25 @@
   </head>
 
   <body>
-    <% flash.each do |type, message| %>
-      <div role="<%= type == "alert" ? "alert" : "status" %>"><%= message %></div>
+    <% if flash.any? %>
+      <div class="flash-stack" data-turbo-temporary>
+        <% flash.each do |type, message| %>
+          <% tone = type.to_s == "alert" ? "alert" : "notice" %>
+          <% role = tone == "alert" ? "alert" : "status" %>
+          <div
+            class="flash-message flash-message--<%= tone %>"
+            role="<%= role %>"
+            aria-atomic="true"
+            data-controller="flash-message">
+            <span class="flash-message__marker" aria-hidden="true"></span>
+            <p class="flash-message__text"><%= message %></p>
+            <button
+              type="button"
+              class="flash-message__dismiss"
+              data-action="flash-message#dismiss">Dismiss</button>
+          </div>
+        <% end %>
+      </div>
     <% end %>
 
     <%= yield %>
