@@ -24,6 +24,13 @@ Rails.application.routes.draw do
   post "sign_in", to: "sessions#create"
   delete "sign_out", to: "sessions#destroy", as: :sign_out
 
+  get "password_reset", to: "password_reset_requests#new", as: :new_password_reset_request
+  post "password_reset", to: "password_reset_requests#create", as: :password_reset_request
+  get "password_reset/accepted", to: "password_reset_requests#accepted", as: :password_reset_request_accepted
+
+  get "password_reset/:token", to: "password_resets#show", as: :password_reset
+  patch "password_reset/:token", to: "password_resets#update"
+
   get "email_verification/resend", to: "email_verification_resends#new", as: :new_email_verification_resend
   post "email_verification/resend", to: "email_verification_resends#create", as: :email_verification_resend
   get "email_verification/resend/accepted", to: "email_verification_resends#accepted", as: :email_verification_resend_accepted

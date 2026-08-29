@@ -1,0 +1,18 @@
+<% content_for :title, "Password-reset link unavailable" %>
+
+<main class="auth-shell">
+  <section class="auth-panel" aria-labelledby="invalid-password-reset-heading">
+    <%= link_to "Grindfolio", root_path, class: "auth-wordmark" %>
+
+    <header class="auth-heading">
+      <h1 id="invalid-password-reset-heading">Password-reset link unavailable</h1>
+      <div class="auth-copy">
+        <p>This password-reset link is invalid, expired, or has already been used.</p>
+      </div>
+    </header>
+
+    <div class="auth-actions">
+      <%= link_to "Request another reset email", new_password_reset_request_path, class: "button button--primary" %>
+    </div>
+  </section>
+</main>

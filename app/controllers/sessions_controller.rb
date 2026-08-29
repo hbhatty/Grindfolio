@@ -22,8 +22,7 @@ class SessionsController < ApplicationController
       password: login_params[:password]
     )
 
-    if @password_credential&.email_verified_at?
-      start_new_session_for(@password_credential.user)
+    if @password_credential&.email_verified_at? && start_session_for(@password_credential)
       redirect_to root_path, status: :see_other
     else
       @password_credential = PasswordCredential.new(email_address: normalized_email)
@@ -40,6 +39,21 @@ class SessionsController < ApplicationController
   private
     def normalized_email
       PasswordCredential.new(email_address: login_params[:email_address]).email_address
+    end
+
+    def start_session_for(password_credential)
+      started = false
+
+      PasswordCredential.transaction do
+        credential = PasswordCredential.lock.find_by(id: password_credential.id)
+
+        if credential&.email_verified_at? && credential.authenticate(login_params[:password])
+          start_new_session_for(credential.user)
+          started = true
+        end
+      end
+
+      started
     end
 
     def login_params

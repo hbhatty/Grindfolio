@@ -13,10 +13,13 @@ module Authentication
     end
 
     def start_new_session_for(user)
-      Current.session = user.sessions.create!(
-        ip_address: request.remote_ip,
-        user_agent: request.user_agent
-      )
+      user.with_lock do
+        Current.session = user.sessions.create!(
+          ip_address: request.remote_ip,
+          user_agent: request.user_agent
+        )
+      end
+
       write_session_cookie(Current.session)
     end
 

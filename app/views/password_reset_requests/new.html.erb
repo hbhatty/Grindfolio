@@ -1,0 +1,29 @@
+<% content_for :title, "Reset your password" %>
+
+<main class="auth-shell">
+  <section class="auth-panel" aria-labelledby="password-reset-request-heading">
+    <%= link_to "Grindfolio", root_path, class: "auth-wordmark" %>
+
+    <header class="auth-heading">
+      <h1 id="password-reset-request-heading">Reset your password</h1>
+      <p class="auth-intro">Enter the verified email address for your Grindfolio account.</p>
+    </header>
+
+    <%= form_with url: password_reset_request_path, scope: :password_reset_request, method: :post, class: "auth-form" do |form| %>
+      <div class="form-field">
+        <%= form.label :email_address, "Email address", class: "form-label" %>
+        <%= form.email_field :email_address,
+          required: true,
+          autocomplete: "email",
+          maxlength: 254,
+          size: nil,
+          autofocus: true,
+          class: "form-control" %>
+      </div>
+
+      <%= form.submit "Send reset email", class: "button button--primary form-submit" %>
+    <% end %>
+
+    <p class="auth-footer"><%= link_to "Return to sign in", sign_in_path %></p>
+  </section>
+</main>

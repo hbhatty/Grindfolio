@@ -1,5 +1,6 @@
 class PasswordCredential < ApplicationRecord
   EMAIL_VERIFICATION_TOKEN_LIFETIME = 24.hours
+  PASSWORD_RESET_TOKEN_LIFETIME = 1.hour
   PASSWORD_MINIMUM_LENGTH = 8
   PASSWORD_MAXIMUM_BYTES = 72
 
@@ -9,6 +10,10 @@ class PasswordCredential < ApplicationRecord
 
   generates_token_for :email_verification, expires_in: EMAIL_VERIFICATION_TOKEN_LIFETIME do
     [ email_address, email_verified_at ]
+  end
+
+  generates_token_for :password_reset, expires_in: PASSWORD_RESET_TOKEN_LIFETIME do
+    [ email_address, password_digest ]
   end
 
   normalizes :email_address, with: ->(email_address) { email_address.strip.downcase }

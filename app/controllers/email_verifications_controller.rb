@@ -45,7 +45,8 @@ class EmailVerificationsController < ApplicationController
 
         if credential && credential.email_verified_at.nil? && token_credential&.id == credential.id
           credential.update!(email_verified_at: Time.current)
-          session = credential.user.sessions.create!(
+          user = User.lock.find(credential.user_id)
+          session = user.sessions.create!(
             ip_address: request.remote_ip,
             user_agent: request.user_agent
           )

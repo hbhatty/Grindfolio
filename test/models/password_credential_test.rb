@@ -113,6 +113,39 @@ class PasswordCredentialTest < ActiveSupport::TestCase
     end
   end
 
+  test "generates a password reset token for the current email and password digest" do
+    credential = create_credential(user: User.create!, email_address: "developer@example.com")
+    token = credential.generate_token_for(:password_reset)
+
+    assert_equal credential, PasswordCredential.find_by_token_for(:password_reset, token)
+
+    credential.update!(email_address: "new-address@example.com")
+
+    assert_nil PasswordCredential.find_by_token_for(:password_reset, token)
+  end
+
+  test "invalidates the password reset token after the password changes" do
+    credential = create_credential(user: User.create!, email_address: "developer@example.com")
+    token = credential.generate_token_for(:password_reset)
+    replacement_password = "new correct horse battery staple"
+
+    credential.update!(
+      password: replacement_password,
+      password_confirmation: replacement_password
+    )
+
+    assert_nil PasswordCredential.find_by_token_for(:password_reset, token)
+  end
+
+  test "expires the password reset token after one hour" do
+    credential = create_credential(user: User.create!, email_address: "developer@example.com")
+    token = credential.generate_token_for(:password_reset)
+
+    travel_to(PasswordCredential::PASSWORD_RESET_TOKEN_LIFETIME.from_now + 1.second) do
+      assert_nil PasswordCredential.find_by_token_for(:password_reset, token)
+    end
+  end
+
   private
     def create_credential(user:, email_address:)
       PasswordCredential.create!(

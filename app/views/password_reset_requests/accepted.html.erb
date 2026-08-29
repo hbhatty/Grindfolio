@@ -1,0 +1,19 @@
+<% content_for :title, "Check your email" %>
+
+<main class="auth-shell">
+  <section class="auth-panel" aria-labelledby="password-reset-request-accepted-heading">
+    <%= link_to "Grindfolio", root_path, class: "auth-wordmark" %>
+
+    <header class="auth-heading">
+      <h1 id="password-reset-request-accepted-heading">Check your email</h1>
+      <div class="auth-copy">
+        <p>If a verified Grindfolio password account exists for that address, we will send a password-reset email.</p>
+        <p>Please allow a few minutes for the message to arrive.</p>
+      </div>
+    </header>
+
+    <div class="auth-actions">
+      <%= link_to "Continue to sign in", sign_in_path, class: "button button--primary" %>
+    </div>
+  </section>
+</main>
