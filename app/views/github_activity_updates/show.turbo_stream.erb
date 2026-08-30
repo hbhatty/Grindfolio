@@ -1,2 +1,7 @@
 <%= turbo_stream.replace "github_provider", partial: "home/github_provider_frame" %>
 <%= turbo_stream.replace "github_activity", partial: "home/github_activity_frame" %>
+<% if @github_notification %>
+  <%= turbo_stream.update "flash_stack",
+    partial: "shared/flash_message",
+    locals: @github_notification %>
+<% end %>
