@@ -13,30 +13,26 @@ module Leetcode
       :detail_message
     )
 
-    attr_reader :start_date, :end_date
-
-    def initialize(connection:, today:, start_date:, end_date:, activities:)
+    def initialize(connection:, calendar:, activities:)
       @connection = connection
-      @today = today
-      @start_date = start_date
-      @end_date = end_date
+      @calendar = calendar
       @activities = activities
     end
 
     def cells
-      @cells ||= (start_date..end_date).map.with_index do |date, index|
+      @cells ||= calendar.dates_through_today.map do |date|
         activity = activities[date]
         count = activity&.submission_count
         state = state_for(date, activity)
 
         Cell.new(
           date:,
-          week: index / 7,
+          week: calendar.week_for(date),
           weekday: date.wday,
           state:,
           level: level_for(count),
           submission_count: count,
-          selected: date == today,
+          selected: date == calendar.today,
           date_label: date_label(date),
           aria_label: aria_label(date, state, count),
           detail_message: detail_message(state, count)
@@ -45,10 +41,9 @@ module Leetcode
     end
 
     private
-      attr_reader :connection, :today, :activities
+      attr_reader :connection, :calendar, :activities
 
       def state_for(date, activity)
-        return "future" if date > today
         return "untracked" if connection.nil? || date < connection.tracking_started_on
         return "unsynchronized" unless activity
         return "zero" if activity.submission_count.zero?
@@ -74,8 +69,6 @@ module Leetcode
         prefix = date_label(date)
 
         case state
-        when "future"
-          "#{prefix}: future date"
         when "untracked"
           "#{prefix}: not tracked"
         when "unsynchronized"
@@ -89,8 +82,6 @@ module Leetcode
 
       def detail_message(state, count)
         case state
-        when "future"
-          "This LeetCode date (UTC) has not happened yet."
         when "untracked"
           "This LeetCode date (UTC) is before tracking began and is not tracked."
         when "unsynchronized"

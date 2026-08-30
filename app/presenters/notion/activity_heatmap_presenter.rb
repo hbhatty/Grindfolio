@@ -13,30 +13,26 @@ module Notion
       :detail_message
     )
 
-    attr_reader :start_date, :end_date
-
-    def initialize(connection:, today:, start_date:, end_date:, applications:)
+    def initialize(connection:, calendar:, applications:)
       @connection = connection
-      @today = today
-      @start_date = start_date
-      @end_date = end_date
+      @calendar = calendar
       @applications = applications
     end
 
     def cells
-      @cells ||= (start_date..end_date).map.with_index do |date, index|
+      @cells ||= calendar.dates_through_today.map do |date|
         daily_applications = applications.fetch(date, [])
         state = state_for(date, daily_applications)
         count = count_for(state, daily_applications)
 
         Cell.new(
           date:,
-          week: index / 7,
+          week: calendar.week_for(date),
           weekday: date.wday,
           state:,
           level: level_for(count),
           application_count: count,
-          selected: date == today,
+          selected: date == calendar.today,
           date_label: date.to_fs(:long),
           aria_label: aria_label(date, state, count),
           detail_message: detail_message(state, daily_applications)
@@ -45,10 +41,9 @@ module Notion
     end
 
     private
-      attr_reader :connection, :today, :applications
+      attr_reader :connection, :calendar, :applications
 
       def state_for(date, daily_applications)
-        return "future" if date > today
         return "untracked" if connection.nil? || date < connection.tracking_started_on
         return "unsynchronized" if connection.last_synced_at.nil?
         return "zero" if daily_applications.empty?
@@ -57,7 +52,7 @@ module Notion
       end
 
       def count_for(state, daily_applications)
-        return if %w[future untracked unsynchronized].include?(state)
+        return if %w[untracked unsynchronized].include?(state)
 
         daily_applications.length
       end
@@ -76,7 +71,6 @@ module Notion
         prefix = date.to_fs(:long)
 
         case state
-        when "future" then "#{prefix}: future date"
         when "untracked" then "#{prefix}: not tracked"
         when "unsynchronized" then "#{prefix}: not synchronized"
         when "zero" then "#{prefix}: 0 applications; synchronized"
@@ -86,8 +80,6 @@ module Notion
 
       def detail_message(state, daily_applications)
         case state
-        when "future"
-          "This date has not happened yet."
         when "untracked"
           "This date is before Notion tracking began and is not tracked."
         when "unsynchronized"

@@ -181,9 +181,9 @@ button, a, select, input { font: inherit; }
 .heatmap-calendar { box-sizing: border-box; margin-top: 1.25rem; max-width: 100%; min-width: 0; overflow-x: auto; overscroll-behavior-inline: contain; padding: 0.25rem 0.25rem var(--space-3); scrollbar-color: var(--color-border) transparent; scrollbar-width: thin; }
 .heatmap-calendar:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 .heatmap-scroll-hint { border: 0; clip: rect(0 0 0 0); height: 1px; margin: -1px; overflow: hidden; padding: 0; position: absolute; white-space: nowrap; width: 1px; }
-.heatmap-months { color: var(--color-text-muted); display: grid; font-size: 0.65rem; grid-template-columns: 2rem repeat(53, minmax(0, 1fr)); margin: 0 0 0.3rem; min-height: 1rem; min-width: 46rem; }
+.heatmap-months { color: var(--color-text-muted); display: grid; font-size: 0.65rem; grid-template-columns: 2rem repeat(var(--heatmap-weeks), minmax(0, 1fr)); margin: 0 0 0.3rem; min-height: 1rem; min-width: 46rem; }
 .heatmap-months span { grid-row: 1; white-space: nowrap; }
-.heatmap-grid { display: grid; gap: 0.2rem; grid-template-columns: 2rem repeat(53, minmax(0, 1fr)); grid-template-rows: repeat(7, minmax(0, 1fr)); min-width: 46rem; width: 100%; }
+.heatmap-grid { display: grid; gap: 0.2rem; grid-template-columns: 2rem repeat(var(--heatmap-weeks), minmax(0, 1fr)); grid-template-rows: repeat(7, minmax(0, 1fr)); min-width: 46rem; width: 100%; }
 .heatmap-weekdays { color: var(--color-text-muted); display: grid; font-size: 0.58rem; grid-column: 1; grid-row: 1 / span 7; grid-template-rows: repeat(7, minmax(0, 1fr)); line-height: 1; }
 .heatmap-weekdays span { align-items: center; display: flex; }
 .heatmap-cell { aspect-ratio: 1; background: var(--heatmap-empty); border: 0; border-radius: 0.2rem; cursor: pointer; min-width: 0; padding: 0; }
@@ -193,7 +193,6 @@ button, a, select, input { font: inherit; }
 .heatmap-cell--fourth { background: var(--heatmap-level-fourth); }
 .heatmap-cell--untracked { background: transparent; box-shadow: inset 0 0 0 1px var(--color-border); }
 .heatmap-cell--pending, .heatmap-cell--unsynchronized { background: repeating-linear-gradient(135deg, var(--heatmap-empty), var(--heatmap-empty) 0.2rem, var(--heatmap-pending) 0.2rem, var(--heatmap-pending) 0.35rem); }
-.heatmap-cell--future { background: transparent; opacity: 0.35; }
 .heatmap-cell[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-text); position: relative; z-index: 1; }
 .heatmap-cell:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
 .heatmap-footer, .heatmap-legend { align-items: center; display: flex; }

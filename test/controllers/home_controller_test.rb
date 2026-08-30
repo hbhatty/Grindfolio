@@ -62,6 +62,44 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     assert_nil Current.session
   end
 
+  test "renders every heatmap from January through today" do
+    travel_to Time.utc(2026, 8, 29, 12) do
+      create_signed_in_user
+
+      get root_url
+
+      assert_response :success
+      assert_select "section[aria-labelledby='build-heatmap-heading']" do
+        assert_select ".heatmap-calendar[style='--heatmap-weeks: 53;']"
+        assert_select "[role='grid'][aria-label='GitHub activity for 2026']" do
+          assert_select ".heatmap-cell", count: 241 do |cells|
+            assert_equal "January 01, 2026: not tracked", cells.first["aria-label"]
+            assert_includes cells.first["style"], "grid-column: 2;"
+            assert_equal "January 04, 2026: not tracked", cells[3]["aria-label"]
+            assert_includes cells[3]["style"], "grid-column: 3;"
+            assert_equal "August 29, 2026: not tracked", cells.last["aria-label"]
+          end
+        end
+      end
+      assert_select "section[aria-labelledby='practice-heatmap-heading']" do
+        assert_select "[role='grid'][aria-label='LeetCode Practice activity for 2026, using LeetCode dates in UTC']" do
+          assert_select ".heatmap-cell", count: 241 do |cells|
+            assert_equal "January 01, 2026 — LeetCode date (UTC): not tracked", cells.first["aria-label"]
+            assert_equal "August 29, 2026 — LeetCode date (UTC): not tracked", cells.last["aria-label"]
+          end
+        end
+      end
+      assert_select "section[aria-labelledby='apply-heatmap-heading']" do
+        assert_select "[role='grid'][aria-label='Notion Apply activity for 2026, using mapped Application Dates']" do
+          assert_select ".heatmap-cell", count: 241 do |cells|
+            assert_equal "January 01, 2026: not tracked", cells.first["aria-label"]
+            assert_equal "August 29, 2026: not tracked", cells.last["aria-label"]
+          end
+        end
+      end
+    end
+  end
+
   test "renders saved GitHub contributions without importing earlier dates" do
     travel_to Time.utc(2026, 8, 23, 12) do
       user = create_signed_in_user
@@ -259,7 +297,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
       assert_select "section[aria-labelledby='practice-heatmap-heading']" do
         assert_select ".heatmap-caption", text: /LeetCode date \(UTC\).*not rebucketed/
         assert_select ".heatmap-sync-status", text: /Last updated.*UTC/
-        assert_select "form[action='#{leetcode_activity_update_path}'] button[data-turbo-submits-with='Updating…']", "Update LeetCode activity"
+        assert_select "form[action='#{leetcode_activity_update_path}'] button[data-turbo-submits-with='Updating…']", "Update activity"
         assert_select "button[aria-label='August 22, 2026 — LeetCode date (UTC): not tracked'][data-state='untracked'][data-count='—']"
         assert_select "button[aria-label='August 23, 2026 — LeetCode date (UTC): not synchronized'][data-state='unsynchronized'][data-count='—']"
         assert_select "button[aria-label='August 24, 2026 — LeetCode date (UTC): raw submission count 0; synchronized with no submissions'][data-state='zero'][data-count='0']"
@@ -335,7 +373,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
       assert_select ".provider-card--orange", text: /Connected/
       assert_select "section[aria-labelledby='apply-heatmap-heading']" do
         assert_select "form[action='#{notion_activity_update_path}'] button[data-turbo-submits-with='Updating…']",
-          "Update Notion activity"
+          "Update activity"
         assert_select "button[aria-label='August 26, 2026: 1 application'][data-state='active'][data-count='1'][aria-pressed='true']"
         assert_select "[data-heatmap-target='message']", /Example Company.*Software Engineering Intern.*Status: Applied/
         assert_select "[data-heatmap-target='count']", "1"
