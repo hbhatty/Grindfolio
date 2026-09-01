@@ -350,15 +350,18 @@ button, a, select, input { font: inherit; }
 .heatmap-cell[aria-pressed="true"] { position: relative; z-index: 1; }
 .heatmap-cell[aria-pressed="true"]::before { box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-text); }
 .heatmap-cell:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
-.heatmap-footer, .heatmap-legend { align-items: center; display: flex; }
+.heatmap-footer, .heatmap-legend, .heatmap-state-legend, .heatmap-state-key { align-items: center; display: flex; }
 .heatmap-footer { color: var(--color-text-muted); flex-wrap: wrap; font-size: 0.68rem; gap: var(--space-3) 1.5rem; margin-top: 1rem; }
 .heatmap-legend { gap: 0.28rem; }
-.heatmap-swatch { background: var(--heatmap-empty); border-radius: 0.18rem; display: inline-block; height: 0.72rem; width: 0.72rem; }
+.heatmap-state-legend { flex-wrap: wrap; gap: var(--space-2) var(--space-3); }
+.heatmap-state-key { gap: 0.35rem; }
+.heatmap-swatch, .heatmap-state-swatch { background: var(--heatmap-empty); border-radius: 0.18rem; display: inline-block; flex: 0 0 auto; height: 0.72rem; width: 0.72rem; }
 .heatmap-swatch--first { background: var(--heatmap-level-first); }
 .heatmap-swatch--second { background: var(--heatmap-level-second); }
 .heatmap-swatch--third { background: var(--heatmap-level-third); }
 .heatmap-swatch--fourth { background: var(--heatmap-level-fourth); }
-.heatmap-outline { border: 1px solid var(--heatmap-untracked-border); border-radius: 0.18rem; display: inline-block; height: 0.72rem; margin-right: 0.35rem; vertical-align: -0.15rem; width: 0.72rem; }
+.heatmap-state-swatch--waiting { background: repeating-linear-gradient(135deg, var(--heatmap-empty), var(--heatmap-empty) 0.2rem, var(--heatmap-pending) 0.2rem, var(--heatmap-pending) 0.35rem); }
+.heatmap-outline { border: 1px solid var(--heatmap-untracked-border); border-radius: 0.18rem; display: inline-block; flex: 0 0 auto; height: 0.72rem; width: 0.72rem; }
 .heatmap-footer p { margin: 0; }
 .heatmap-selected-day { align-items: end; border-top: 1px solid var(--color-border); display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr) auto; margin-top: 1rem; padding-top: 1rem; }
 .heatmap-selected-day > div { min-width: 0; }
@@ -467,6 +470,7 @@ button, a, select, input { font: inherit; }
   .heatmap-scroll-hint { clip: auto; color: var(--color-text-muted); font-size: var(--font-size-meta); height: auto; line-height: 1.5; margin: 0 0 var(--space-3); overflow: visible; position: static; white-space: normal; width: auto; }
   .heatmap-weekdays { font-size: 0.5rem; }
   .heatmap-footer { align-items: flex-start; flex-direction: column; gap: var(--space-2); }
+  .heatmap-state-legend { align-items: flex-start; flex-direction: column; gap: var(--space-2); }
   .heatmap-selected-day { align-items: start; grid-template-columns: minmax(0, 1fr); }
   .heatmap-selected-value { align-items: baseline; display: flex; gap: var(--space-2); min-width: 0; text-align: left; }
   .account-heading { flex-direction: column; margin-top: 2rem; }

@@ -124,7 +124,7 @@
 
     <div class="heatmap-footer">
       <div class="heatmap-legend" aria-label="Contribution intensity legend"><span>Less</span><i class="heatmap-swatch heatmap-swatch--none"></i><i class="heatmap-swatch heatmap-swatch--first"></i><i class="heatmap-swatch heatmap-swatch--second"></i><i class="heatmap-swatch heatmap-swatch--third"></i><i class="heatmap-swatch heatmap-swatch--fourth"></i><span>More</span></div>
-      <p><span class="heatmap-outline" aria-hidden="true"></span>Not tracked before connection</p>
+      <%= render "home/heatmap_state_legend" %>
     </div>
 
     <div class="heatmap-selected-day" aria-live="polite" aria-labelledby="selected-day-heading">

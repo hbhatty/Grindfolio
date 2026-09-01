@@ -97,6 +97,10 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
           end
         end
       end
+      assert_select ".heatmap-state-legend", count: 3
+      assert_select ".heatmap-state-key", { text: "No activity", count: 3 }
+      assert_select ".heatmap-state-key", { text: "Waiting for update", count: 3 }
+      assert_select ".heatmap-state-key", { text: "Not tracked", count: 3 }
     end
   end
 
