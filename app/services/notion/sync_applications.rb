@@ -162,7 +162,11 @@ module Notion
           stale = stale.where.not(provider_page_id: retained_ids) if retained_ids.any?
           stale.delete_all
           connection.applications.reset
-          connection.update!(last_synced_at: now, last_sync_error: nil)
+          connection.update!(
+            last_synced_at: now,
+            last_synced_through_on: current_date,
+            last_sync_error: nil
+          )
         end
       end
 

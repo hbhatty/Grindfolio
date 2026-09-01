@@ -45,7 +45,7 @@ module Notion
 
       def state_for(date, daily_applications)
         return "untracked" if connection.nil? || date < connection.tracking_started_on
-        return "unsynchronized" if connection.last_synced_at.nil?
+        return "unsynchronized" if connection.last_synced_through_on.nil? || date > connection.last_synced_through_on
         return "zero" if daily_applications.empty?
 
         "active"

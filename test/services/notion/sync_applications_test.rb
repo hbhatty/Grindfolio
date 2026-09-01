@@ -57,6 +57,7 @@ class Notion::SyncApplicationsTest < ActiveSupport::TestCase
     assert_equal "Software Engineering Intern", application.role
     assert_equal "Applied", application.current_status
     assert_equal NOW, @connection.reload.last_synced_at
+    assert_equal Date.new(2026, 8, 26), @connection.last_synced_through_on
     assert_nil @connection.last_sync_error
   end
 
@@ -88,7 +89,10 @@ class Notion::SyncApplicationsTest < ActiveSupport::TestCase
   test "preserves the prior cache and successful timestamp on provider failure" do
     cached = @connection.applications.create!(application_attributes)
     previous_sync = Time.utc(2026, 8, 26, 19)
-    @connection.update!(last_synced_at: previous_sync)
+    @connection.update!(
+      last_synced_at: previous_sync,
+      last_synced_through_on: Date.new(2026, 8, 26)
+    )
     client = FakeClient.new(schema:, error: Notion::ApiClient::Error.new("secret provider failure"))
 
     error = assert_raises Notion::SyncApplications::Error do
@@ -98,6 +102,7 @@ class Notion::SyncApplicationsTest < ActiveSupport::TestCase
     assert_equal Notion::SyncApplications::PROVIDER_ERROR, error.message
     assert_equal [ cached.id ], @connection.applications.pluck(:id)
     assert_equal previous_sync, @connection.reload.last_synced_at
+    assert_equal Date.new(2026, 8, 26), @connection.last_synced_through_on
     assert_equal Notion::SyncApplications::PROVIDER_ERROR, @connection.last_sync_error
     assert_not_includes @connection.last_sync_error, "secret provider failure"
   end

@@ -354,7 +354,10 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     travel_to Time.utc(2026, 8, 26, 20) do
       user = create_signed_in_user(time_zone: "America/Toronto")
       connection = create_notion_connection(user)
-      connection.update!(last_synced_at: Time.current)
+      connection.update!(
+        last_synced_at: Time.current,
+        last_synced_through_on: Date.new(2026, 8, 26)
+      )
       connection.applications.create!(
         provider_page_id: "page-id",
         applied_on: Date.new(2026, 8, 26),
