@@ -96,14 +96,8 @@
             </div>
 
             <% if @github_connection %>
-              <% github_status_label = case @github_connection.sync_status
-              when "queued", "syncing" then "Updating"
-              when "reauthorization_required" then "Reconnect"
-              when "error" then "Update failed"
-              when "ready" then "Updated"
-              else "Not updated"
-              end %>
-              <span class="account-provider-status account-provider-status--<%= @github_connection.sync_status %>"><span aria-hidden="true"></span><%= github_status_label %></span>
+              <% reconnect_required = @github_connection.sync_status_reauthorization_required? %>
+              <span class="account-provider-status account-provider-status--<%= reconnect_required ? "reauthorization_required" : "ready" %>"><span aria-hidden="true"></span><%= reconnect_required ? "Reconnect" : "Connected" %></span>
             <% else %>
               <span class="account-provider-status account-provider-status--available"><span aria-hidden="true"></span>Not connected</span>
             <% end %>

@@ -1,13 +1,5 @@
 <% key = provider.fetch(:key) %>
-<% status_label = if key == :github && github_connection
-  case github_connection.sync_status
-  when "queued", "syncing" then "Updating"
-  when "reauthorization_required" then "Reconnect"
-  when "error" then "Update failed"
-  when "ready" then "Updated"
-  else "Not updated"
-  end
-end %>
+<% reconnect_required = key == :github && github_connection&.sync_status_reauthorization_required? %>
 
 <article class="provider-card provider-card--<%= provider.fetch(:tone) %>" aria-labelledby="provider-<%= key %>-heading">
   <div class="provider-card-heading">
@@ -20,7 +12,7 @@ end %>
     </div>
 
     <% if github_connection %>
-      <span class="provider-status provider-status--<%= github_connection.sync_status %>"><span aria-hidden="true"></span><%= status_label %></span>
+      <span class="provider-status provider-status--<%= reconnect_required ? "reauthorization_required" : "ready" %>"><span aria-hidden="true"></span><%= reconnect_required ? "Reconnect" : "Connected" %></span>
     <% else %>
       <span class="provider-status provider-status--disconnected"><span aria-hidden="true"></span>Not connected</span>
     <% end %>

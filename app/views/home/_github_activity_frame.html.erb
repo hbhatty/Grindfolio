@@ -29,9 +29,9 @@
         <% elsif @github_connection&.last_synced_at %>
           <% local_sync_time = @github_connection.last_synced_at.in_time_zone(@display_time_zone) %>
           <% if @github_connection.last_synced_at >= 1.minute.ago %>
-            <%= time_tag local_sync_time, "Updated just now" %>
+            <%= time_tag local_sync_time, "Last updated just now" %>
           <% else %>
-            Updated <%= time_tag local_sync_time, local_sync_time.to_fs(:short) %> <%= local_sync_time.zone %>
+            Last updated <%= time_tag local_sync_time, local_sync_time.to_fs(:short) %> <%= local_sync_time.zone %>
           <% end %>
         <% elsif @github_connection %>
           Ready for first update

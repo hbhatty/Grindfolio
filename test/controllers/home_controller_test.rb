@@ -126,7 +126,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
 
       assert_response :success
       assert_select ".provider-card--green", text: /Connected as @octocat/
-      assert_select ".heatmap-sync", text: /Updated.*UTC/
+      assert_select ".heatmap-sync", text: /Last updated.*UTC/
       assert_select "button[aria-label='August 20, 2026: not tracked'].heatmap-cell--untracked"
       assert_select "button[aria-label='August 22, 2026: not synced yet'].heatmap-cell--pending"
       assert_select "button[aria-label='August 23, 2026: 1 contribution'].heatmap-cell--fourth" do
@@ -167,7 +167,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :success
-    assert_select ".provider-status--pending", "Not updated"
+    assert_select ".provider-status--ready", "Connected"
     assert_select ".heatmap-sync-status", "Ready for first update"
     assert_select "form[action='#{github_activity_update_path}'][method='post']" do
       assert_select "button", "Update activity"
@@ -185,8 +185,8 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get root_url
 
     assert_response :success
-    assert_select ".provider-status--ready", "Updated"
-    assert_select ".heatmap-sync-status", text: /Updated/
+    assert_select ".provider-status--ready", "Connected"
+    assert_select ".heatmap-sync-status", text: /Last updated/
     assert_select "form[action='#{github_activity_update_path}'] button", "Update activity"
     assert_select "turbo-frame#github_activity[data-sync-active='false']"
   end
@@ -202,7 +202,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get root_url
 
     assert_response :success
-    assert_select ".provider-status--error", "Update failed"
+    assert_select ".provider-status--ready", "Connected"
     assert_select ".heatmap-sync-status", /existing activity is still available/
     assert_select "form[action='#{github_activity_update_path}'] button", "Retry update"
   end
@@ -214,7 +214,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get root_url
 
     assert_response :success
-    assert_select ".provider-status--syncing", "Updating"
+    assert_select ".provider-status--ready", "Connected"
     assert_select ".heatmap-sync-status[role='status'][aria-live='polite']", /Updating GitHub activity/
     assert_select "button.heatmap-sync-action[disabled][aria-disabled='true']", "Updating…"
     assert_select "form[action='#{github_activity_update_path}']", count: 0
@@ -229,7 +229,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
     get root_url
 
     assert_response :success
-    assert_select ".provider-status--queued", "Updating"
+    assert_select ".provider-status--ready", "Connected"
     assert_select ".heatmap-sync-status", /Updating GitHub activity/
     assert_select ".heatmap-sync-progress[aria-hidden='true']"
     assert_select "turbo-frame#github_activity[data-sync-active='true']"

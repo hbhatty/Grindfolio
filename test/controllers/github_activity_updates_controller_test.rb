@@ -120,7 +120,7 @@ class GithubActivityUpdatesControllerTest < ActionDispatch::IntegrationTest
       assert_response :success
       assert_select "turbo-stream[action='replace'][target='github_provider']"
       assert_select "turbo-stream[action='replace'][target='github_activity']"
-      assert_includes response.body, "Updated just now"
+      assert_includes response.body, "Last updated just now"
       assert_select "turbo-stream[action='update'][target='flash_stack']", count: 1 do
         assert_select ".flash-message--notice .flash-message__text",
           GithubActivityUpdatesController::UPDATE_COMPLETED_MESSAGE
