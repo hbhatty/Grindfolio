@@ -57,6 +57,16 @@ class AccountsControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", "Your Grindfolio account"
+    assert_select ".account-masthead nav[aria-label='Primary']" do
+      assert_select "a", "Activity"
+      assert_select "[aria-current='page']", "Account"
+      assert_select "form[action='#{sign_out_path}'][method='post']" do
+        assert_select "input[name='_method'][value='delete']"
+        assert_select "button.authenticated-sign-out", "Sign out"
+      end
+    end
+    assert_select ".account-heading .account-private-status", "Private"
+    assert_select ".account-panel-heading .account-private-status", count: 0
     assert_select "dd", "current@example.com"
     assert_select "body", text: /other@example\.com/, count: 0
     assert_select "form[action='#{account_path}'][method='post']" do

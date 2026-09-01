@@ -1,0 +1,19 @@
+<header class="<%= class_names("account-masthead", local_assigns[:masthead_class]) %>">
+  <%= link_to "Grindfolio", root_path, class: "auth-wordmark" %>
+
+  <nav class="<%= class_names("account-navigation", local_assigns[:navigation_class]) %>" aria-label="Primary">
+    <% if current_page == :activity %>
+      <span aria-current="page">Activity</span>
+    <% else %>
+      <%= link_to "Activity", root_path %>
+    <% end %>
+
+    <% if current_page == :account %>
+      <span aria-current="page">Account</span>
+    <% else %>
+      <%= link_to "Account", account_path %>
+    <% end %>
+
+    <%= button_to "Sign out", sign_out_path, method: :delete, class: "authenticated-sign-out" %>
+  </nav>
+</header>

@@ -4,15 +4,10 @@
   data-github-sync-refresh-url-value="<%= github_activity_update_path %>"
   data-github-sync-refresh-interval-value="2000"
   data-github-sync-refresh-max-attempts-value="30">
-  <header class="account-masthead dashboard-masthead">
-    <%= link_to "Grindfolio", root_path, class: "auth-wordmark" %>
-
-    <nav class="account-navigation dashboard-navigation" aria-label="Primary">
-      <span aria-current="page">Activity</span>
-      <%= link_to "Account", account_path %>
-      <%= button_to "Sign out", sign_out_path, method: :delete, class: "dashboard-sign-out" %>
-    </nav>
-  </header>
+  <%= render "shared/authenticated_masthead",
+    current_page: :activity,
+    masthead_class: "dashboard-masthead",
+    navigation_class: "dashboard-navigation" %>
 
   <header class="dashboard-heading">
     <div>

@@ -277,10 +277,10 @@ button, a, select, input { font: inherit; }
 .dashboard-shell > turbo-frame { display: block; min-width: 0; }
 .dashboard-masthead { gap: 1.5rem; }
 .dashboard-navigation { flex-wrap: wrap; justify-content: flex-end; }
-.dashboard-navigation form { display: flex; margin: 0; }
-.dashboard-sign-out { background: transparent; border: 0; color: var(--color-text-muted); cursor: pointer; font-size: inherit; font-weight: 700; padding: 0; }
-.dashboard-sign-out:hover { color: var(--color-text); text-decoration: underline; text-underline-offset: 0.2em; }
-.dashboard-sign-out:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
+.account-navigation form { display: flex; margin: 0; }
+.authenticated-sign-out { background: transparent; border: 0; color: var(--color-text-muted); cursor: pointer; font-size: inherit; font-weight: 700; padding: 0; }
+.authenticated-sign-out:hover { color: var(--color-text); text-decoration: underline; text-underline-offset: 0.2em; }
+.authenticated-sign-out:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
 .dashboard-heading { align-items: flex-start; display: flex; gap: 1.5rem; justify-content: space-between; margin-top: 3rem; }
 .dashboard-heading > div { max-width: 40rem; min-width: 0; }
 .dashboard-eyebrow { color: var(--color-text-muted); font-size: 0.7rem; font-weight: 750; letter-spacing: 0.12em; margin: 0 0 var(--space-2); text-transform: uppercase; }
@@ -376,7 +376,8 @@ button, a, select, input { font: inherit; }
 .account-navigation a { color: var(--color-accent-700); font-weight: 700; text-decoration: none; }
 .account-navigation a:hover { color: var(--color-accent-800); text-decoration: underline; text-underline-offset: 0.2em; }
 .account-navigation a:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 3px; }
-.account-heading { margin-top: 3rem; max-width: 40rem; }
+.account-heading { align-items: flex-start; display: flex; gap: 1.5rem; justify-content: space-between; margin-top: 3rem; }
+.account-heading > div { max-width: 40rem; min-width: 0; }
 .account-eyebrow, .account-section-label { color: var(--color-accent-700); font-size: 0.7rem; font-weight: 750; letter-spacing: 0.12em; margin: 0 0 0.5rem; text-transform: uppercase; }
 .account-heading h1 { font-size: clamp(1.75rem, 5vw, 2rem); letter-spacing: -0.05em; line-height: 1.1; margin: 0; }
 .account-intro { color: var(--color-text-muted); font-size: 0.92rem; line-height: 1.6; margin: var(--space-3) 0 0; }
@@ -447,7 +448,7 @@ button, a, select, input { font: inherit; }
   .marketing-home { padding-inline: 1rem; }
   .marketing-actions { align-items: stretch; flex-direction: column; }
   .button { width: 100%; }
-  .dashboard-navigation { gap: var(--space-3); }
+  .account-navigation { gap: var(--space-3); }
   .dashboard-heading { flex-direction: column; margin-top: 2rem; }
   .dashboard-private-status { margin-top: 0; }
   .provider-grid { grid-template-columns: 1fr; }
@@ -466,9 +467,9 @@ button, a, select, input { font: inherit; }
   .heatmap-footer { align-items: flex-start; flex-direction: column; gap: var(--space-2); }
   .heatmap-selected-day { align-items: start; grid-template-columns: minmax(0, 1fr); }
   .heatmap-selected-value { align-items: baseline; display: flex; gap: var(--space-2); min-width: 0; text-align: left; }
-  .account-heading { margin-top: 2rem; }
+  .account-heading { flex-direction: column; margin-top: 2rem; }
   .account-panel-heading { display: block; }
-  .account-private-status { margin-top: var(--space-3); }
+  .account-private-status { margin-top: 0; }
   .account-settings { grid-template-columns: 1fr; }
   .account-setting + .account-setting { border-left: 0; border-top: 1px solid var(--color-border); padding-left: 0; padding-top: 1.25rem; }
   .account-provider-topline { flex-direction: column; }

@@ -1,19 +1,15 @@
 <% content_for :title, "Your Grindfolio account" %>
 
 <main class="account-shell">
-  <header class="account-masthead">
-    <%= link_to "Grindfolio", root_path, class: "auth-wordmark" %>
-
-    <nav class="account-navigation" aria-label="Primary">
-      <%= link_to "Activity", root_path %>
-      <span aria-current="page">Account</span>
-    </nav>
-  </header>
+  <%= render "shared/authenticated_masthead", current_page: :account %>
 
   <header class="account-heading">
-    <p class="account-eyebrow">Settings</p>
-    <h1>Your Grindfolio account</h1>
-    <p class="account-intro">Manage your account details and the providers connected to your private activity dashboard.</p>
+    <div>
+      <p class="account-eyebrow">Settings</p>
+      <h1>Your Grindfolio account</h1>
+      <p class="account-intro">Manage your account details and the providers connected to your private activity dashboard.</p>
+    </div>
+    <span class="account-private-status"><span aria-hidden="true"></span>Private</span>
   </header>
 
   <div class="account-layout">
@@ -23,7 +19,6 @@
           <p class="account-section-label">Account</p>
           <h2 id="account-details-heading">Details and preferences</h2>
         </div>
-        <span class="account-private-status"><span aria-hidden="true"></span>Private</span>
       </div>
 
       <div class="account-settings">
