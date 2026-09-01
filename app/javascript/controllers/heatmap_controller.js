@@ -5,13 +5,31 @@ export default class extends Controller {
 
   connect() {
     const selected = this.dayTargets.find((day) => day.getAttribute("aria-pressed") === "true")
-    if (selected) this.updateDetails(selected)
+    if (!selected) return
+
+    this.updateDetails(selected)
+    this.scrollSelectedIntoView(selected)
   }
 
   select(event) {
     this.dayTargets.forEach((day) => day.setAttribute("aria-pressed", "false"))
     event.currentTarget.setAttribute("aria-pressed", "true")
     this.updateDetails(event.currentTarget)
+  }
+
+  scrollSelectedIntoView(day) {
+    if (!window.matchMedia("(max-width: 650px)").matches) return
+
+    const calendar = day.closest(".heatmap-calendar")
+    if (!calendar) return
+
+    const dayLeft = day.offsetLeft
+    const dayRight = dayLeft + day.offsetWidth
+    const visibleLeft = calendar.scrollLeft
+    const visibleRight = visibleLeft + calendar.clientWidth
+    if (dayLeft >= visibleLeft && dayRight <= visibleRight) return
+
+    calendar.scrollLeft = Math.max(0, dayRight - calendar.clientWidth)
   }
 
   updateDetails(day) {

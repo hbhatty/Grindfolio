@@ -448,6 +448,8 @@ button, a, select, input { font: inherit; }
   .marketing-home { padding-inline: 1rem; }
   .marketing-actions { align-items: stretch; flex-direction: column; }
   .button { width: 100%; }
+  .theme-picker__trigger { height: 2.75rem; width: 2.75rem; }
+  .auth-wordmark, .account-navigation > a, .account-navigation > span, .authenticated-sign-out { align-items: center; display: flex; min-height: 2.75rem; }
   .account-navigation { gap: var(--space-3); }
   .dashboard-heading { flex-direction: column; margin-top: 2rem; }
   .dashboard-private-status { margin-top: 0; }
