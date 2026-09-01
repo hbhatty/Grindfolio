@@ -118,7 +118,7 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
       )
       connection.daily_contributions.create!(
         activity_date: Date.new(2026, 8, 23),
-        contribution_count: 2,
+        contribution_count: 1,
         contribution_level: "FOURTH_QUARTILE"
       )
 
@@ -129,8 +129,8 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
       assert_select ".heatmap-sync", text: /Updated.*UTC/
       assert_select "button[aria-label='August 20, 2026: not tracked'].heatmap-cell--untracked"
       assert_select "button[aria-label='August 22, 2026: not synced yet'].heatmap-cell--pending"
-      assert_select "button[aria-label='August 23, 2026: 2 contributions'].heatmap-cell--fourth" do
-        assert_select "[data-count='2'][data-state='tracked'][aria-pressed='true']"
+      assert_select "button[aria-label='August 23, 2026: 1 contribution'].heatmap-cell--fourth" do
+        assert_select "[data-count='1'][data-unit='contribution'][data-state='tracked'][aria-pressed='true']"
       end
     end
   end
@@ -301,10 +301,11 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
         assert_select "button[aria-label='August 22, 2026 — LeetCode date (UTC): not tracked'][data-state='untracked'][data-count='—']"
         assert_select "button[aria-label='August 23, 2026 — LeetCode date (UTC): not synchronized'][data-state='unsynchronized'][data-count='—']"
         assert_select "button[aria-label='August 24, 2026 — LeetCode date (UTC): raw submission count 0; synchronized with no submissions'][data-state='zero'][data-count='0']"
-        assert_select "button[aria-label='August 25, 2026 — LeetCode date (UTC): raw submission count 4; active'][data-state='active'][data-count='4'][aria-pressed='true']"
+        assert_select "button[aria-label='August 25, 2026 — LeetCode date (UTC): raw submission count 4; active'][data-state='active'][data-count='4'][data-unit='submissions'][aria-pressed='true']"
         assert_select "[data-heatmap-target='date']", "August 25, 2026 — LeetCode date (UTC)"
         assert_select "[data-heatmap-target='message']", /raw submission count: 4.*LeetCode date \(UTC\)/
         assert_select "[data-heatmap-target='count']", "4"
+        assert_select "[data-heatmap-target='unit']", "submissions"
       end
       assert_select "section[aria-labelledby='build-heatmap-heading'] h2", "GitHub activity"
       assert_select "form[action='#{github_activity_update_path}'] button", "Update activity"
@@ -377,9 +378,10 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
       assert_select "section[aria-labelledby='apply-heatmap-heading']" do
         assert_select "form[action='#{notion_activity_update_path}'] button[data-turbo-submits-with='Updating…']",
           "Update activity"
-        assert_select "button[aria-label='August 26, 2026: 1 application'][data-state='active'][data-count='1'][aria-pressed='true']"
+        assert_select "button[aria-label='August 26, 2026: 1 application'][data-state='active'][data-count='1'][data-unit='application'][aria-pressed='true']"
         assert_select "[data-heatmap-target='message']", /Example Company.*Software Engineering Intern.*Status: Applied/
         assert_select "[data-heatmap-target='count']", "1"
+        assert_select "[data-heatmap-target='unit']", "application"
       end
     end
   end

@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["day", "date", "count", "message"]
+  static targets = ["day", "date", "count", "message", "unit"]
 
   connect() {
     const selected = this.dayTargets.find((day) => day.getAttribute("aria-pressed") === "true")
@@ -20,6 +20,7 @@ export default class extends Controller {
 
     this.dateTarget.textContent = day.dataset.label
     this.countTarget.textContent = count
+    this.unitTarget.textContent = day.dataset.unit
     this.messageTarget.textContent = day.dataset.message || (state === "untracked"
       ? "Tracking begins on the day you connect GitHub. Earlier dates are intentionally left untracked."
       : state === "future"

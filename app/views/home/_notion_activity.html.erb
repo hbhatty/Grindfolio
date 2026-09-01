@@ -64,6 +64,7 @@
         data-action="heatmap#select"
         data-label="<%= cell.date_label %>"
         data-count="<%= cell.application_count.nil? ? "—" : cell.application_count %>"
+        data-unit="<%= cell.application_count == 1 ? "application" : "applications" %>"
         data-state="<%= cell.state %>"
         data-message="<%= cell.detail_message %>"
         aria-label="<%= cell.aria_label %>"
@@ -83,6 +84,6 @@
       <h3 id="notion-selected-day-heading" data-heatmap-target="date"><%= selected_cell.date_label %></h3>
       <p data-heatmap-target="message"><%= selected_cell.detail_message %></p>
     </div>
-    <div class="heatmap-selected-value"><strong data-heatmap-target="count"><%= selected_cell.application_count.nil? ? "—" : selected_cell.application_count %></strong><span>application count</span></div>
+    <div class="heatmap-selected-value"><strong data-heatmap-target="count"><%= selected_cell.application_count.nil? ? "—" : selected_cell.application_count %></strong><span data-heatmap-target="unit"><%= selected_cell.application_count == 1 ? "application" : "applications" %></span></div>
   </div>
 </section>

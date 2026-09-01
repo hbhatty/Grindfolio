@@ -89,6 +89,7 @@
         <% weekday = date.wday %>
         <% contribution = @github_contributions[date] %>
         <% count = contribution&.contribution_count %>
+        <% unit = count == 1 ? "contribution" : "contributions" %>
         <% untracked = @tracking_started_on.nil? || date < @tracking_started_on %>
         <% pending = !untracked && count.nil? %>
         <% state = untracked ? "untracked" : pending ? "pending" : "tracked" %>
@@ -103,8 +104,7 @@
         elsif pending
           "#{date.to_fs(:long)}: not synced yet"
         else
-          noun = count == 1 ? "contribution" : "contributions"
-          "#{date.to_fs(:long)}: #{count} #{noun}"
+          "#{date.to_fs(:long)}: #{count} #{unit}"
         end %>
         <button
           type="button"
@@ -114,6 +114,7 @@
           data-action="heatmap#select"
           data-label="<%= date.to_fs(:long) %>"
           data-count="<%= count || "—" %>"
+          data-unit="<%= unit %>"
           data-state="<%= state %>"
           aria-label="<%= label %>"
           aria-pressed="<%= date == @github_today %>"></button>
@@ -132,7 +133,7 @@
         <h3 id="selected-day-heading" data-heatmap-target="date">Today</h3>
         <p data-heatmap-target="message">Select a day to inspect what Grindfolio recorded.</p>
       </div>
-      <div class="heatmap-selected-value"><strong data-heatmap-target="count">—</strong><span>contributions</span></div>
+      <div class="heatmap-selected-value"><strong data-heatmap-target="count">—</strong><span data-heatmap-target="unit">contributions</span></div>
     </div>
   </section>
 <% end %>

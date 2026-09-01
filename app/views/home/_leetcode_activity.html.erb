@@ -64,6 +64,7 @@
         data-action="heatmap#select"
         data-label="<%= cell.date_label %>"
         data-count="<%= cell.submission_count.nil? ? "—" : cell.submission_count %>"
+        data-unit="<%= cell.submission_count == 1 ? "submission" : "submissions" %>"
         data-state="<%= cell.state %>"
         data-message="<%= cell.detail_message %>"
         aria-label="<%= cell.aria_label %>"
@@ -83,6 +84,6 @@
       <h3 id="leetcode-selected-day-heading" data-heatmap-target="date"><%= selected_cell.date_label %></h3>
       <p data-heatmap-target="message"><%= selected_cell.detail_message %></p>
     </div>
-    <div class="heatmap-selected-value"><strong data-heatmap-target="count"><%= selected_cell.submission_count.nil? ? "—" : selected_cell.submission_count %></strong><span>submissions</span></div>
+    <div class="heatmap-selected-value"><strong data-heatmap-target="count"><%= selected_cell.submission_count.nil? ? "—" : selected_cell.submission_count %></strong><span data-heatmap-target="unit"><%= selected_cell.submission_count == 1 ? "submission" : "submissions" %></span></div>
   </div>
 </section>
