@@ -4,7 +4,7 @@
 
 I built Grindfolio to help professionals, students, and job seekers see their daily progress in one place, stay accountable, and feel encouraged by the progress they are making.
 
-> **Status:** Grindfolio is a private beta and portfolio project. This repository is available for recruiters and other reviewers to see how it was built. The app is not yet publicly hosted and is not intended to be self-hosted.
+> **Status:** Grindfolio is in private beta.
 
 ![Grindfolio private dashboard showing Build, Practice, and Apply activity](.github/readme/dashboard-desktop.webp)
 

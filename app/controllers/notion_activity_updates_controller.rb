@@ -11,9 +11,9 @@ class NotionActivityUpdatesController < ApplicationController
     return redirect_without_connection unless connection
     return redirect_during_cooldown unless claim_update(connection)
 
-    sync_service.call(connection:)
+    result = sync_service.call(connection:)
     redirect_to root_path,
-      notice: "Notion activity update completed.",
+      notice: update_notice(result),
       status: :see_other
   rescue Notion::SyncApplications::UnsupportedTemplate
     redirect_to root_path,
@@ -37,6 +37,22 @@ class NotionActivityUpdatesController < ApplicationController
         expires_in: CONNECTION_COOLDOWN,
         unless_exist: true
       )
+    end
+
+    def update_notice(result)
+      changes = {
+        added: result.added_count,
+        edited: result.updated_count,
+        moved: result.moved_count,
+        (result.status_changed_count == 1 ? "status changed" : "statuses changed") => result.status_changed_count,
+        removed: result.removed_count
+      }.filter_map do |label, count|
+        "#{count} #{label}" if count.positive?
+      end
+
+      return "Notion applications are already up to date." if changes.empty?
+
+      "Notion applications updated: #{changes.to_sentence}."
     end
 
     def redirect_without_connection

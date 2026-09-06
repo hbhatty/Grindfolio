@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_31_180000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_04_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -101,6 +101,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_31_180000) do
     t.check_constraint "verification_attempts >= 0 AND verification_attempts <= 5", name: "leetcode_verification_challenges_attempts_in_range"
   end
 
+  create_table "notion_application_status_changes", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.datetime "detected_at", null: false
+    t.date "detected_on", null: false
+    t.string "from_status"
+    t.bigint "notion_application_id", null: false
+    t.string "to_status"
+    t.datetime "updated_at", null: false
+    t.index ["detected_on"], name: "index_notion_application_status_changes_on_detected_on"
+    t.index ["notion_application_id"], name: "idx_on_notion_application_id_010b6c2a47"
+    t.check_constraint "from_status IS NULL OR from_status::text <> ''::text", name: "notion_status_changes_from_status_present"
+    t.check_constraint "from_status::text IS DISTINCT FROM to_status::text", name: "notion_status_changes_status_changed"
+    t.check_constraint "to_status IS NULL OR to_status::text <> ''::text", name: "notion_status_changes_to_status_present"
+  end
+
   create_table "notion_applications", force: :cascade do |t|
     t.date "applied_on", null: false
     t.text "company_name", null: false
@@ -177,6 +192,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_31_180000) do
   add_foreign_key "leetcode_connections", "users"
   add_foreign_key "leetcode_daily_activities", "leetcode_connections"
   add_foreign_key "leetcode_verification_challenges", "users"
+  add_foreign_key "notion_application_status_changes", "notion_applications", on_delete: :cascade
   add_foreign_key "notion_applications", "notion_connections"
   add_foreign_key "notion_connections", "users"
   add_foreign_key "password_credentials", "users"

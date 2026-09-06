@@ -7,6 +7,10 @@ class NotionConnection < ApplicationRecord
     class_name: "NotionApplication",
     dependent: :destroy,
     inverse_of: :notion_connection
+  has_many :application_status_changes,
+    through: :applications,
+    source: :status_changes
+
 
   validates :user_id, :bot_id, uniqueness: true
   validates :workspace_id,

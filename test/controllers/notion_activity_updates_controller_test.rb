@@ -39,7 +39,13 @@ class NotionActivityUpdatesControllerTest < ActionDispatch::IntegrationTest
     received = nil
     NotionActivityUpdatesController.sync_service = lambda do |connection:|
       received = connection
-      1
+      sync_result(
+        added_count: 2,
+        updated_count: 1,
+        moved_count: 1,
+        status_changed_count: 2,
+        removed_count: 1
+      )
     end
     sign_in_as(user)
 
@@ -49,7 +55,22 @@ class NotionActivityUpdatesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
     assert_equal connection, received
     assert_not_equal other_connection, received
-    assert_equal "Notion activity update completed.", flash[:notice]
+    assert_equal(
+      "Notion applications updated: 2 added, 1 edited, 1 moved, 2 statuses changed, and 1 removed.",
+      flash[:notice]
+    )
+  end
+
+  test "reports when the Notion cache is already current" do
+    user = create_verified_user(email_address: "developer@example.com")
+    create_connection(user:)
+    NotionActivityUpdatesController.sync_service = ->(connection:) { sync_result }
+    sign_in_as(user)
+
+    post notion_activity_update_path
+
+    assert_response :see_other
+    assert_equal "Notion applications are already up to date.", flash[:notice]
   end
 
   test "prevents another provider request during the connection cooldown" do
@@ -58,7 +79,7 @@ class NotionActivityUpdatesControllerTest < ActionDispatch::IntegrationTest
     calls = 0
     NotionActivityUpdatesController.sync_service = lambda do |connection:|
       calls += 1
-      0
+      sync_result
     end
     sign_in_as(user)
 
@@ -85,6 +106,24 @@ class NotionActivityUpdatesControllerTest < ActionDispatch::IntegrationTest
   end
 
   private
+    def sync_result(
+      application_count: 0,
+      added_count: 0,
+      updated_count: 0,
+      moved_count: 0,
+      status_changed_count: 0,
+      removed_count: 0
+    )
+      Notion::SyncApplications::Result.new(
+        application_count:,
+        added_count:,
+        updated_count:,
+        moved_count:,
+        status_changed_count:,
+        removed_count:,
+      )
+    end
+
     def create_connection(user:)
       user.create_notion_connection!(
         workspace_id: "workspace-#{user.id}",

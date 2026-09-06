@@ -381,11 +381,66 @@ class HomeControllerTest < ActionDispatch::IntegrationTest
       assert_select ".provider-card--orange", text: /Connected/
       assert_select "section[aria-labelledby='apply-heatmap-heading']" do
         assert_select "form[action='#{notion_activity_update_path}'] button[data-turbo-submits-with='Updating…']",
-          "Update activity"
-        assert_select "button[aria-label='August 26, 2026: 1 application'][data-state='active'][data-count='1'][data-unit='application'][aria-pressed='true']"
-        assert_select "[data-heatmap-target='message']", /Example Company.*Software Engineering Intern.*Status: Applied/
+          "Update applications"
+        assert_select "button[aria-label='August 26, 2026: 1 application'][data-state='active'][data-count='1'][data-unit='application'][aria-pressed='true'][data-applications]"
+        assert_select "[data-heatmap-target='message']", "Applications remain on their Application Date; the badge shows the first status Grindfolio observed."
+        assert_select "[data-heatmap-target='items']:not([hidden])" do
+          assert_select ".notion-application", count: 1 do
+            assert_select ".notion-application-copy strong", "Example Company"
+            assert_select ".notion-application-copy span", "Software Engineering Intern"
+            assert_select ".notion-application-status--positive", "Applied"
+          end
+        end
         assert_select "[data-heatmap-target='count']", "1"
         assert_select "[data-heatmap-target='unit']", "application"
+      end
+    end
+  end
+
+  test "renders detected status changes without adding application activity" do
+    travel_to Time.utc(2026, 8, 26, 20) do
+      user = create_signed_in_user(time_zone: "America/Toronto")
+      connection = create_notion_connection(user)
+      connection.update!(
+        tracking_started_on: Date.new(2026, 8, 20),
+        last_synced_at: Time.current,
+        last_synced_through_on: Date.new(2026, 8, 26)
+      )
+      application = connection.applications.create!(
+        provider_page_id: "ibm-page-id",
+        applied_on: Date.new(2026, 8, 20),
+        company_name: "IBM",
+        role: "Software Developer",
+        current_status: "Rejected",
+        provider_last_edited_at: Time.current
+      )
+      application.status_changes.create!(
+        from_status: "Applied",
+        to_status: "Rejected",
+        detected_on: Date.new(2026, 8, 26),
+        detected_at: Time.current
+      )
+
+      get root_url
+
+      assert_response :success
+      assert_select "section[aria-labelledby='apply-heatmap-heading']" do
+        assert_select "button[aria-label='August 20, 2026: 1 application']" do |buttons|
+          application_details = JSON.parse(buttons.first["data-applications"])
+
+          assert_equal "Applied", application_details.first.fetch("status")
+          assert_equal "positive", application_details.first.fetch("status_tone")
+        end
+        assert_select "button.heatmap-cell--changed[aria-label='August 26, 2026: 0 applications; synchronized; 1 application change detected'][data-count='0'][data-status-changes]"
+        assert_select "[data-heatmap-target='applicationsSection'][hidden]"
+        assert_select "[data-heatmap-target='changesSection']:not([hidden])" do
+          assert_select ".notion-application-copy strong", "IBM"
+          assert_select ".notion-status-transition[aria-label='Status changed from Applied to Rejected']"
+          assert_select ".notion-application-status--positive", "Applied"
+          assert_select ".notion-application-status--negative", "Rejected"
+        end
+        assert_select "[data-heatmap-target='count']", "0"
+        assert_select ".heatmap-state-key", text: /Application change · does not count/
       end
     end
   end

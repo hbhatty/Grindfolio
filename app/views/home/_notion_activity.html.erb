@@ -4,30 +4,39 @@
   <header class="heatmap-card-header">
     <p class="heatmap-kicker">Apply</p>
     <h2 id="apply-heatmap-heading">Notion applications</h2>
-    <p class="heatmap-caption">Each cached row counts once on its intentional Application Date. Current status is detail, not additional activity.</p>
+    <p class="heatmap-caption">Each dated Notion row counts once on its Application Date. Select a day to review details; later status changes update that day without creating new activity.</p>
   </header>
 
   <div class="heatmap-sync">
-    <p class="heatmap-sync-status" role="status" aria-live="polite" aria-atomic="true">
-      <% if @notion_connection&.last_sync_error.present? %>
-        <%= @notion_connection.last_sync_error %> Your saved activity is still available.
-      <% elsif @notion_connection&.last_synced_at %>
-        <% local_sync_time = @notion_connection.last_synced_at.in_time_zone(@display_time_zone) %>
-        Last updated <%= time_tag local_sync_time, local_sync_time.to_fs(:short) %> <%= local_sync_time.zone %>
-      <% elsif @notion_connection %>
-        Never updated
-      <% else %>
-        Connect Notion to begin tracking application activity.
+    <div class="heatmap-sync-copy">
+      <p class="heatmap-sync-label">Synchronization</p>
+      <p
+        class="<%= class_names("heatmap-sync-status", "heatmap-sync-status--error": @notion_connection&.last_sync_error.present?) %>"
+        role="status"
+        aria-live="polite"
+        aria-atomic="true">
+        <% if @notion_connection&.last_sync_error.present? %>
+          <%= @notion_connection.last_sync_error %> Your saved activity is still available.
+        <% elsif @notion_connection&.last_synced_at %>
+          <% local_sync_time = @notion_connection.last_synced_at.in_time_zone(@display_time_zone) %>
+          Last updated <%= time_tag local_sync_time, local_sync_time.to_fs(:short) %> <%= local_sync_time.zone %>
+        <% elsif @notion_connection %>
+          Ready for the first update
+        <% else %>
+          Connect Notion to begin tracking application activity.
+        <% end %>
+      </p>
+      <% if @notion_connection&.last_synced_through_on %>
+        <p class="heatmap-sync-context">Checked through <%= @notion_connection.last_synced_through_on.to_fs(:long) %>.</p>
       <% end %>
-    </p>
+    </div>
 
     <div class="heatmap-sync-actions" role="group" aria-label="Notion activity actions">
       <% if @notion_connection %>
-        <%= button_to "Update activity",
+        <%= button_to "Update applications",
           notion_activity_update_path,
           method: :post,
           class: "button button--primary heatmap-sync-action",
-          aria: { label: "Update Notion activity" },
           data: { turbo_submits_with: "Updating…" } %>
       <% end %>
     </div>
@@ -58,7 +67,7 @@
     <% @notion_heatmap.cells.each do |cell| %>
       <button
         type="button"
-        class="heatmap-cell heatmap-cell--<%= cell.state %> heatmap-cell--<%= cell.level %>"
+        class="heatmap-cell heatmap-cell--<%= cell.state %> heatmap-cell--<%= cell.level %><%= " heatmap-cell--changed" if cell.status_change_count.positive? %>"
         style="grid-column: <%= cell.week + 2 %>; grid-row: <%= cell.weekday + 1 %>;"
         data-heatmap-target="day"
         data-action="heatmap#select"
@@ -67,6 +76,8 @@
         data-unit="<%= cell.application_count == 1 ? "application" : "applications" %>"
         data-state="<%= cell.state %>"
         data-message="<%= cell.detail_message %>"
+        data-applications="<%= cell.application_details.to_json %>"
+        data-status-changes="<%= cell.status_change_details.to_json %>"
         aria-label="<%= cell.aria_label %>"
         aria-pressed="<%= cell.selected %>"></button>
     <% end %>
@@ -76,13 +87,72 @@
   <div class="heatmap-footer">
     <div class="heatmap-legend" aria-label="Application intensity legend"><span>Less</span><i class="heatmap-swatch heatmap-swatch--none"></i><i class="heatmap-swatch heatmap-swatch--first"></i><i class="heatmap-swatch heatmap-swatch--second"></i><i class="heatmap-swatch heatmap-swatch--third"></i><i class="heatmap-swatch heatmap-swatch--fourth"></i><span>More</span></div>
     <%= render "home/heatmap_state_legend" %>
+    <% if @notion_status_changes.present? %>
+      <p class="heatmap-state-key"><span class="heatmap-state-swatch heatmap-state-swatch--change" aria-hidden="true"></span>Application change · does not count</p>
+    <% end %>
   </div>
 
-  <div class="heatmap-selected-day" aria-live="polite" aria-labelledby="notion-selected-day-heading">
+  <div class="heatmap-selected-day notion-selected-day" aria-live="polite" aria-labelledby="notion-selected-day-heading">
     <div>
       <p class="heatmap-selected-label">Selected day</p>
       <h3 id="notion-selected-day-heading" data-heatmap-target="date"><%= selected_cell.date_label %></h3>
       <p data-heatmap-target="message"><%= selected_cell.detail_message %></p>
+      <div class="notion-selected-groups">
+        <section
+          class="notion-selected-group"
+          data-heatmap-target="applicationsSection"
+          aria-labelledby="notion-submitted-heading"
+          <%= "hidden" if selected_cell.application_details.empty? %>>
+          <h4 id="notion-submitted-heading">Applications submitted</h4>
+          <ul
+            class="notion-application-list"
+            data-heatmap-target="items">
+            <% selected_cell.application_details.each do |application| %>
+              <li class="notion-application">
+                <div class="notion-application-copy">
+                  <strong><%= application.fetch(:company_name) %></strong>
+                  <% if application[:role].present? %>
+                    <span><%= application[:role] %></span>
+                  <% end %>
+                </div>
+                <% if application[:status].present? %>
+                  <span class="notion-application-status notion-application-status--<%= application.fetch(:status_tone) %>"><%= application[:status] %></span>
+                <% end %>
+              </li>
+            <% end %>
+          </ul>
+        </section>
+
+        <section
+          class="notion-selected-group"
+          data-heatmap-target="changesSection"
+          aria-labelledby="notion-changes-heading"
+          <%= "hidden" if selected_cell.status_change_details.empty? %>>
+          <h4 id="notion-changes-heading">Application changes</h4>
+          <p>Detected during a Notion update. These changes do not add to the application count.</p>
+          <ul
+            class="notion-application-list notion-status-change-list"
+            data-heatmap-target="changes">
+            <% selected_cell.status_change_details.each do |change| %>
+              <li class="notion-application">
+                <div class="notion-application-copy">
+                  <strong><%= change.fetch(:company_name) %></strong>
+                  <% if change[:role].present? %>
+                    <span><%= change[:role] %></span>
+                  <% end %>
+                </div>
+                <div
+                  class="notion-status-transition"
+                  aria-label="Status changed from <%= change.fetch(:from_status) %> to <%= change.fetch(:to_status) %>">
+                  <span class="notion-application-status notion-application-status--<%= change.fetch(:from_status_tone) %>" aria-hidden="true"><%= change.fetch(:from_status) %></span>
+                  <span class="notion-status-transition-arrow" aria-hidden="true">→</span>
+                  <span class="notion-application-status notion-application-status--<%= change.fetch(:to_status_tone) %>" aria-hidden="true"><%= change.fetch(:to_status) %></span>
+                </div>
+              </li>
+            <% end %>
+          </ul>
+        </section>
+      </div>
     </div>
     <div class="heatmap-selected-value"><strong data-heatmap-target="count"><%= selected_cell.application_count.nil? ? "—" : selected_cell.application_count %></strong><span data-heatmap-target="unit"><%= selected_cell.application_count == 1 ? "application" : "applications" %></span></div>
   </div>

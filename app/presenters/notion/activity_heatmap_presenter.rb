@@ -7,21 +7,32 @@ module Notion
       :state,
       :level,
       :application_count,
+      :application_details,
+      :status_change_count,
+      :status_change_details,
       :selected,
       :date_label,
       :aria_label,
       :detail_message
     )
 
-    def initialize(connection:, calendar:, applications:)
+    STATUS_TONE_PATTERNS = {
+      negative: /\b(reject(?:ed|ion)?|declin(?:ed)?|unsuccessful|not selected)\b/i,
+      positive: /\b(applied|submitted|offer(?:ed| received)?|accepted|hired)\b/i,
+      progress: /\b(interview(?:ing|ed)?|screen(?:ing)?|assessment|challenge|test)\b/i
+    }.freeze
+
+    def initialize(connection:, calendar:, applications:, status_changes:)
       @connection = connection
       @calendar = calendar
       @applications = applications
+      @status_changes = status_changes
     end
 
     def cells
       @cells ||= calendar.dates_through_today.map do |date|
         daily_applications = applications.fetch(date, [])
+        daily_status_changes = status_changes.fetch(date, [])
         state = state_for(date, daily_applications)
         count = count_for(state, daily_applications)
 
@@ -32,16 +43,19 @@ module Notion
           state:,
           level: level_for(count),
           application_count: count,
+          application_details: application_details(daily_applications),
+          status_change_count: daily_status_changes.length,
+          status_change_details: status_change_details(daily_status_changes),
           selected: date == calendar.today,
           date_label: date.to_fs(:long),
-          aria_label: aria_label(date, state, count),
-          detail_message: detail_message(state, daily_applications)
+          aria_label: aria_label(date, state, count, daily_status_changes.length),
+          detail_message: detail_message(state)
         )
       end
     end
 
     private
-      attr_reader :connection, :calendar, :applications
+      attr_reader :connection, :calendar, :applications, :status_changes
 
       def state_for(date, daily_applications)
         return "untracked" if connection.nil? || date < connection.tracking_started_on
@@ -67,18 +81,20 @@ module Notion
         end
       end
 
-      def aria_label(date, state, count)
+      def aria_label(date, state, count, status_change_count)
         prefix = date.to_fs(:long)
-
-        case state
+        activity_label = case state
         when "untracked" then "#{prefix}: not tracked"
         when "unsynchronized" then "#{prefix}: not synchronized"
         when "zero" then "#{prefix}: 0 applications; synchronized"
         else "#{prefix}: #{count} #{"application".pluralize(count)}"
         end
+        return activity_label if status_change_count.zero?
+
+        "#{activity_label}; #{status_change_count} application #{"change".pluralize(status_change_count)} detected"
       end
 
-      def detail_message(state, daily_applications)
+      def detail_message(state)
         case state
         when "untracked"
           "This date is before Notion tracking began and is not tracked."
@@ -87,15 +103,50 @@ module Notion
         when "zero"
           "Notion was synchronized with no applications submitted on this date."
         else
-          daily_applications.map { |application| application_detail(application) }.join(" · ")
+          "Applications remain on their Application Date; the badge shows the first status Grindfolio observed."
         end
       end
 
-      def application_detail(application)
-        details = [ application.company_name ]
-        details << application.role if application.role.present?
-        details << "Status: #{application.current_status}" if application.current_status.present?
-        details.join(" — ")
+      def application_details(daily_applications)
+        daily_applications.map do |application|
+          status = first_observed_status(application)
+
+          {
+            company_name: application.company_name,
+            role: application.role.presence,
+            status:,
+            status_tone: status_tone(status)
+          }
+        end
+      end
+
+      def first_observed_status(application)
+        first_change = application.status_changes&.first
+        first_change ? first_change.from_status.presence : application.current_status.presence
+      end
+
+      def status_tone(status)
+        return "neutral" if status.blank?
+
+        match = STATUS_TONE_PATTERNS.find { |_tone, pattern| status.match?(pattern) }
+        match ? match.first.to_s : "neutral"
+      end
+
+      def status_change_details(daily_status_changes)
+        daily_status_changes.map do |change|
+          application = change.notion_application
+          from_status = change.from_status.presence || "No status"
+          to_status = change.to_status.presence || "No status"
+
+          {
+            company_name: application.company_name,
+            role: application.role.presence,
+            from_status:,
+            from_status_tone: status_tone(change.from_status),
+            to_status:,
+            to_status_tone: status_tone(change.to_status)
+          }
+        end
       end
   end
 end
