@@ -9,6 +9,16 @@ module Notion
     class Error < StandardError; end
     class UnsupportedTemplate < Error; end
     class ReauthorizationRequired < Error; end
+    Result = Data.define(
+      :application_count,
+      :added_count,
+      :updated_count,
+      :moved_count,
+      :status_changed_count,
+      :removed_count,
+    )
+
+    EDITED_ATTRIBUTES = %i[company_name role].freeze
 
     def self.call(connection:)
       new(connection:).call
@@ -29,7 +39,6 @@ module Notion
     def call
       applications = fetch_applications
       persist!(applications)
-      applications.length
     rescue DiscoverTemplate::Error => error
       record_failure(TEMPLATE_ERROR)
       raise UnsupportedTemplate, TEMPLATE_ERROR, cause: error
@@ -147,6 +156,11 @@ module Notion
 
       def persist!(applications)
         connection.with_lock do
+          detected_on = current_date
+          added_count = 0
+          updated_count = 0
+          moved_count = 0
+          status_changed_count = 0
           retained_ids = applications.map { |application| application.fetch(:provider_page_id) }
           existing = connection.applications.index_by(&:provider_page_id)
 
@@ -154,18 +168,48 @@ module Notion
             application = existing.fetch(attributes.fetch(:provider_page_id)) do
               connection.applications.build
             end
+            previous_status = application.current_status
+            status_changed = application.persisted? && previous_status != attributes.fetch(:current_status)
+
+            if application.new_record?
+              added_count += 1
+            else
+              moved_count += 1 if application.applied_on != attributes.fetch(:applied_on)
+              status_changed_count += 1 if status_changed
+              if EDITED_ATTRIBUTES.any? { |attribute| application.public_send(attribute) != attributes.fetch(attribute) }
+                updated_count += 1
+              end
+            end
+
             application.assign_attributes(attributes)
             application.save!
+            if status_changed
+              application.status_changes.create!(
+                from_status: previous_status,
+                to_status: attributes.fetch(:current_status),
+                detected_on:,
+                detected_at: now
+              )
+            end
           end
 
           stale = NotionApplication.where(notion_connection: connection)
           stale = stale.where.not(provider_page_id: retained_ids) if retained_ids.any?
-          stale.delete_all
+          removed_count = stale.delete_all
           connection.applications.reset
           connection.update!(
             last_synced_at: now,
-            last_synced_through_on: current_date,
+            last_synced_through_on: detected_on,
             last_sync_error: nil
+          )
+
+          Result.new(
+            application_count: applications.length,
+            added_count:,
+            updated_count:,
+            moved_count:,
+            status_changed_count:,
+            removed_count:,
           )
         end
       end

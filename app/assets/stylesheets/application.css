@@ -324,7 +324,11 @@ button, a, select, input { font: inherit; }
 .heatmap-card h2 { font-size: 1.1rem; letter-spacing: -0.03em; margin: 0; }
 .heatmap-caption { color: var(--color-text-muted); font-size: var(--font-size-meta); line-height: 1.6; margin: 0.5rem 0 0; overflow-wrap: anywhere; }
 .heatmap-sync { align-items: center; border-top: 1px solid var(--color-border); color: var(--color-text-muted); display: flex; font-size: var(--font-size-meta); gap: 1rem; justify-content: space-between; margin-top: 1rem; padding-top: 1rem; }
-.heatmap-sync-status { flex: 1 1 22rem; line-height: 1.5; margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.heatmap-sync-copy { flex: 1 1 22rem; min-width: 0; }
+.heatmap-sync-label { color: var(--color-text-muted); font-size: 0.65rem; font-weight: 750; letter-spacing: 0.1em; margin: 0 0 var(--space-1); text-transform: uppercase; }
+.heatmap-sync-status { color: var(--color-text); line-height: 1.5; margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.heatmap-sync-status--error { color: var(--color-status-error); }
+.heatmap-sync-context { font-size: 0.7rem; line-height: 1.5; margin: var(--space-1) 0 0; }
 .heatmap-sync-actions { align-items: center; display: flex; flex: 0 0 auto; flex-wrap: wrap; gap: var(--space-2); justify-content: flex-end; }
 .heatmap-sync-actions form { display: flex; margin: 0; }
 .heatmap-sync-action { cursor: pointer; gap: var(--space-2); white-space: nowrap; }
@@ -347,6 +351,8 @@ button, a, select, input { font: inherit; }
 .heatmap-cell--fourth::before { background: var(--heatmap-level-fourth); }
 .heatmap-cell--untracked::before { background: transparent; box-shadow: inset 0 0 0 1px var(--heatmap-untracked-border); }
 .heatmap-cell--pending::before, .heatmap-cell--unsynchronized::before { background: repeating-linear-gradient(135deg, var(--heatmap-empty), var(--heatmap-empty) 0.2rem, var(--heatmap-pending) 0.2rem, var(--heatmap-pending) 0.35rem); }
+.heatmap-cell--changed { position: relative; }
+.heatmap-cell--changed::after { background: var(--color-status-warning-marker); border: 1px solid var(--color-surface); border-radius: 50%; content: ""; height: 0.32rem; position: absolute; right: -0.08rem; top: -0.08rem; width: 0.32rem; }
 .heatmap-cell[aria-pressed="true"] { position: relative; z-index: 1; }
 .heatmap-cell[aria-pressed="true"]::before { box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-text); }
 .heatmap-cell:focus-visible { outline: 2px solid var(--color-focus); outline-offset: 2px; }
@@ -361,6 +367,7 @@ button, a, select, input { font: inherit; }
 .heatmap-swatch--third { background: var(--heatmap-level-third); }
 .heatmap-swatch--fourth { background: var(--heatmap-level-fourth); }
 .heatmap-state-swatch--waiting { background: repeating-linear-gradient(135deg, var(--heatmap-empty), var(--heatmap-empty) 0.2rem, var(--heatmap-pending) 0.2rem, var(--heatmap-pending) 0.35rem); }
+.heatmap-state-swatch--change { background: radial-gradient(circle, var(--color-status-warning-marker) 0, var(--color-status-warning-marker) 0.2rem, transparent 0.22rem); }
 .heatmap-outline { border: 1px solid var(--heatmap-untracked-border); border-radius: 0.18rem; display: inline-block; flex: 0 0 auto; height: 0.72rem; width: 0.72rem; }
 .heatmap-footer p { margin: 0; }
 .heatmap-selected-day { align-items: end; border-top: 1px solid var(--color-border); display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr) auto; margin-top: 1rem; padding-top: 1rem; }
@@ -371,6 +378,23 @@ button, a, select, input { font: inherit; }
 .heatmap-selected-value { min-width: 6rem; text-align: right; }
 .heatmap-selected-value strong { display: block; font-size: 1.55rem; letter-spacing: -0.06em; line-height: 1; }
 .heatmap-selected-value span { color: var(--color-text-muted); font-size: 0.68rem; }
+.notion-selected-groups { display: grid; gap: 1rem; margin-top: 1rem; }
+.notion-selected-group[hidden] { display: none; }
+.notion-selected-group h4 { font-size: 0.72rem; letter-spacing: -0.01em; margin: 0; }
+.notion-selected-group .notion-application-list { margin-top: var(--space-2); }
+.notion-application-list { border: 1px solid var(--color-border); border-radius: var(--radius-control); display: grid; list-style: none; margin: 1rem 0 0; overflow: hidden; padding: 0; }
+.notion-application-list[hidden] { display: none; }
+.notion-application { align-items: center; display: grid; gap: var(--space-3); grid-template-columns: minmax(0, 1fr) auto; padding: var(--space-3); }
+.notion-application + .notion-application { border-top: 1px solid var(--color-border); }
+.notion-application-copy { display: grid; gap: var(--space-1); min-width: 0; }
+.notion-application-copy strong { font-size: 0.82rem; overflow-wrap: anywhere; }
+.notion-application-copy span { color: var(--color-text-muted); font-size: 0.72rem; line-height: 1.4; overflow-wrap: anywhere; }
+.notion-application-status { background: var(--color-surface-muted); border: 1px solid var(--color-border); border-radius: 999px; color: var(--color-text-muted); font-size: 0.68rem; font-weight: 700; line-height: 1.3; max-width: 12rem; overflow-wrap: anywhere; padding: var(--space-1) var(--space-2); text-align: right; }
+.notion-application-status--positive { background: color-mix(in srgb, var(--color-status-success) 10%, var(--color-surface)); border-color: color-mix(in srgb, var(--color-status-success) 38%, var(--color-surface)); color: var(--color-status-success); }
+.notion-application-status--progress { background: color-mix(in srgb, var(--color-status-warning) 10%, var(--color-surface)); border-color: color-mix(in srgb, var(--color-status-warning) 38%, var(--color-surface)); color: var(--color-status-warning); }
+.notion-application-status--negative { background: var(--color-error-surface); border-color: var(--color-error-border); color: var(--color-status-error); }
+.notion-status-transition { align-items: center; display: flex; flex-wrap: wrap; gap: 0.35rem; justify-content: flex-end; }
+.notion-status-transition-arrow { color: var(--color-text-muted); font-size: 0.75rem; font-weight: 700; }
 
 .account-shell { box-sizing: border-box; margin: 0 auto; max-width: 72rem; padding: var(--space-3) clamp(1rem, 4vw, 3rem) clamp(1.5rem, 4vw, 3rem); }
 .account-masthead, .account-navigation, .account-panel-heading, .account-private-status, .account-provider-topline, .account-provider-identity, .account-provider-status, .account-provider-actions { align-items: center; display: flex; }
@@ -459,7 +483,7 @@ button, a, select, input { font: inherit; }
   .provider-grid { grid-template-columns: 1fr; }
   .provider-card-actions, .provider-card-actions form { width: 100%; }
   .heatmap-sync { align-items: stretch; flex-direction: column; }
-  .heatmap-sync-status { flex: 0 1 auto; }
+  .heatmap-sync-copy { flex: 0 1 auto; }
   .heatmap-sync-actions { display: grid; justify-content: stretch; width: 100%; }
   .heatmap-sync-actions form { width: 100%; }
   .heatmap-calendar { margin-top: 1rem; padding-inline: 0; }
@@ -467,12 +491,16 @@ button, a, select, input { font: inherit; }
   .heatmap-grid { gap: 0; grid-template-rows: repeat(7, 1.5rem); }
   .heatmap-cell { aspect-ratio: auto; height: 1.5rem; width: 1.5rem; }
   .heatmap-cell::before { width: 0.65rem; }
+  .heatmap-cell--changed::after { right: 0.25rem; top: 0.25rem; }
   .heatmap-scroll-hint { clip: auto; color: var(--color-text-muted); font-size: var(--font-size-meta); height: auto; line-height: 1.5; margin: 0 0 var(--space-3); overflow: visible; position: static; white-space: normal; width: auto; }
   .heatmap-weekdays { font-size: 0.5rem; }
   .heatmap-footer { align-items: flex-start; flex-direction: column; gap: var(--space-2); }
   .heatmap-state-legend { align-items: flex-start; flex-direction: column; gap: var(--space-2); }
   .heatmap-selected-day { align-items: start; grid-template-columns: minmax(0, 1fr); }
   .heatmap-selected-value { align-items: baseline; display: flex; gap: var(--space-2); min-width: 0; text-align: left; }
+  .notion-application { align-items: start; grid-template-columns: minmax(0, 1fr); }
+  .notion-application-status { justify-self: start; max-width: 100%; text-align: left; }
+  .notion-status-transition { justify-content: flex-start; }
   .account-heading { flex-direction: column; margin-top: 2rem; }
   .account-panel-heading { display: block; }
   .account-private-status { margin-top: 0; }

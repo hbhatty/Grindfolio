@@ -47,9 +47,13 @@ class Notion::SyncApplicationsTest < ActiveSupport::TestCase
       page(id: "future", date: "2026-08-27")
     ]
 
-    count = synchronize(pages:)
+    result = synchronize(pages:)
 
-    assert_equal 1, count
+    assert_equal 1, result.application_count
+    assert_equal 1, result.added_count
+    assert_equal 0, result.updated_count
+    assert_equal 0, result.moved_count
+    assert_equal 0, result.removed_count
     assert_equal [ "current" ], @connection.applications.pluck(:provider_page_id)
     application = @connection.applications.first
     assert_equal Date.new(2026, 8, 26), application.applied_on
@@ -64,9 +68,15 @@ class Notion::SyncApplicationsTest < ActiveSupport::TestCase
   test "authoritatively updates corrected rows and removes absent rows" do
     current = @connection.applications.create!(application_attributes(provider_page_id: "current"))
     created_at = current.created_at
-    @connection.applications.create!(application_attributes(provider_page_id: "deleted"))
+    deleted = @connection.applications.create!(application_attributes(provider_page_id: "deleted"))
+    deleted.status_changes.create!(
+      from_status: "Submitted",
+      to_status: "Applied",
+      detected_on: Date.new(2026, 8, 26),
+      detected_at: NOW
+    )
 
-    synchronize(
+    result = synchronize(
       pages: [
         page(
           id: "current",
@@ -79,11 +89,80 @@ class Notion::SyncApplicationsTest < ActiveSupport::TestCase
     )
 
     assert_equal [ "current" ], @connection.applications.pluck(:provider_page_id)
+    assert_empty NotionApplicationStatusChange.where(notion_application: deleted)
     current.reload
     assert_equal "Renamed Company", current.company_name
     assert_equal "Updated Role", current.role
     assert_equal "Interview Scheduled", current.current_status
     assert_equal created_at, current.created_at
+
+    assert_equal 0, result.added_count
+    assert_equal 1, result.updated_count
+    assert_equal 0, result.moved_count
+    assert_equal 1, result.status_changed_count
+    assert_equal 1, result.removed_count
+  end
+
+  test "reports a corrected application date as moved" do
+    @connection.update!(tracking_started_on: Date.new(2026, 8, 25))
+    @connection.applications.create!(
+      application_attributes(provider_page_id: "moved").merge(applied_on: Date.new(2026, 8, 25))
+    )
+
+    result = synchronize(
+      pages: [
+        page(
+          id: "moved",
+          date: "2026-08-26",
+          company: "Cached Company",
+          role: "Cached Role"
+        )
+      ]
+    )
+
+    assert_equal 0, result.added_count
+    assert_equal 0, result.updated_count
+    assert_equal 1, result.moved_count
+    assert_equal 0, result.status_changed_count
+    assert_equal 0, result.removed_count
+  end
+
+  test "updates current status without moving the original application date" do
+    applied_on = Date.new(2026, 8, 20)
+    @connection.update!(tracking_started_on: applied_on)
+    application = @connection.applications.create!(
+      application_attributes(provider_page_id: "ibm").merge(
+        applied_on:,
+        company_name: "IBM",
+        current_status: "Applied"
+      )
+    )
+
+    result = synchronize(
+      pages: [
+        page(
+          id: "ibm",
+          date: applied_on.iso8601,
+          company: "IBM",
+          role: "Cached Role",
+          status: "Rejected"
+        )
+      ]
+    )
+
+    application.reload
+    change = application.status_changes.sole
+    assert_equal applied_on, application.applied_on
+    assert_equal "Rejected", application.current_status
+    assert_equal "Applied", change.from_status
+    assert_equal "Rejected", change.to_status
+    assert_equal Date.new(2026, 8, 26), change.detected_on
+    assert_equal NOW, change.detected_at
+    assert_equal 1, @connection.applications.count
+    assert_equal 0, result.updated_count
+    assert_equal 1, result.status_changed_count
+    assert_equal 0, result.moved_count
+    assert_equal 0, result.added_count
   end
 
   test "preserves the prior cache and successful timestamp on provider failure" do
@@ -118,9 +197,9 @@ class Notion::SyncApplicationsTest < ActiveSupport::TestCase
       "refreshed-access"
     end
 
-    count = service(api_client_factory: factory, credential_refresher: refresher).call
+    result = service(api_client_factory: factory, credential_refresher: refresher).call
 
-    assert_equal 1, count
+    assert_equal 1, result.application_count
     assert_equal "refreshed-access", @connection.reload.access_token
     assert_empty clients
   end

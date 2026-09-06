@@ -20,10 +20,12 @@ class HomeController < ApplicationController
     )
     @notion_connection = Current.user.notion_connection
     @notion_applications = notion_applications_in_heatmap_range
+    @notion_status_changes = notion_status_changes_in_heatmap_range
     @notion_heatmap = Notion::ActivityHeatmapPresenter.new(
       connection: @notion_connection,
       calendar: @heatmap_calendar,
-      applications: @notion_applications
+      applications: @notion_applications,
+      status_changes: @notion_status_changes
     )
   end
 
@@ -48,8 +50,19 @@ class HomeController < ApplicationController
       return {} unless @notion_connection
 
       @notion_connection.applications
+        .includes(:status_changes)
         .where(applied_on: @heatmap_calendar.dates)
         .order(:applied_on, :company_name)
         .group_by(&:applied_on)
+    end
+
+    def notion_status_changes_in_heatmap_range
+      return {} unless @notion_connection
+
+      @notion_connection.application_status_changes
+        .includes(:notion_application)
+        .where(detected_on: @heatmap_calendar.dates)
+        .order(:detected_at)
+        .group_by(&:detected_on)
     end
 end

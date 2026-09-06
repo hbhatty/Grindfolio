@@ -1,5 +1,10 @@
 class NotionApplication < ApplicationRecord
   belongs_to :notion_connection
+  has_many :status_changes,
+    -> { order(:detected_at, :id) },
+    class_name: "NotionApplicationStatusChange",
+    dependent: :destroy,
+    inverse_of: :notion_application
 
   validates :provider_page_id,
     presence: true,
