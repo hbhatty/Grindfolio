@@ -22,6 +22,7 @@
     </p>
 
     <div class="heatmap-sync-actions" role="group" aria-label="LeetCode activity actions">
+      <%= render "home/heatmap_today_button", provider: "LeetCode" %>
       <% if @leetcode_connection %>
         <%= button_to "Update activity",
           leetcode_activity_update_path,
@@ -60,7 +61,7 @@
         type="button"
         class="heatmap-cell heatmap-cell--<%= cell.state %> heatmap-cell--<%= cell.level %>"
         style="grid-column: <%= cell.week + 2 %>; grid-row: <%= cell.weekday + 1 %>;"
-        data-heatmap-target="day"
+        data-heatmap-target="<%= cell.selected ? "day today" : "day" %>"
         data-action="heatmap#select"
         data-label="<%= cell.date_label %>"
         data-count="<%= cell.submission_count.nil? ? "—" : cell.submission_count %>"

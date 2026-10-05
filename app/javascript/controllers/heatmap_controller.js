@@ -5,6 +5,7 @@ const STATUS_TONES = new Set(["positive", "progress", "negative", "neutral"])
 export default class extends Controller {
   static targets = [
     "day",
+    "today",
     "date",
     "count",
     "message",
@@ -24,24 +25,33 @@ export default class extends Controller {
   }
 
   select(event) {
-    this.dayTargets.forEach((day) => day.setAttribute("aria-pressed", "false"))
-    event.currentTarget.setAttribute("aria-pressed", "true")
-    this.updateDetails(event.currentTarget)
+    this.selectDay(event.currentTarget)
+  }
+
+  jumpToToday() {
+    this.selectDay(this.todayTarget)
+    this.scrollSelectedIntoView(this.todayTarget)
+  }
+
+  selectDay(day) {
+    this.dayTargets.forEach((cell) => cell.setAttribute("aria-pressed", String(cell === day)))
+    this.updateDetails(day)
   }
 
   scrollSelectedIntoView(day) {
-    if (!window.matchMedia("(max-width: 650px)").matches) return
-
     const calendar = day.closest(".heatmap-calendar")
     if (!calendar) return
 
-    const dayLeft = day.offsetLeft
-    const dayRight = dayLeft + day.offsetWidth
-    const visibleLeft = calendar.scrollLeft
+    const calendarBounds = calendar.getBoundingClientRect()
+    const dayBounds = day.getBoundingClientRect()
+    const visibleLeft = calendarBounds.left + calendar.clientLeft
     const visibleRight = visibleLeft + calendar.clientWidth
-    if (dayLeft >= visibleLeft && dayRight <= visibleRight) return
 
-    calendar.scrollLeft = Math.max(0, dayRight - calendar.clientWidth)
+    if (dayBounds.left < visibleLeft) {
+      calendar.scrollLeft -= visibleLeft - dayBounds.left
+    } else if (dayBounds.right > visibleRight) {
+      calendar.scrollLeft += dayBounds.right - visibleRight
+    }
   }
 
   updateDetails(day) {

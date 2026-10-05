@@ -32,6 +32,7 @@
     </div>
 
     <div class="heatmap-sync-actions" role="group" aria-label="Notion activity actions">
+      <%= render "home/heatmap_today_button", provider: "Notion" %>
       <% if @notion_connection %>
         <%= button_to "Update applications",
           notion_activity_update_path,
@@ -69,7 +70,7 @@
         type="button"
         class="heatmap-cell heatmap-cell--<%= cell.state %> heatmap-cell--<%= cell.level %><%= " heatmap-cell--changed" if cell.status_change_count.positive? %>"
         style="grid-column: <%= cell.week + 2 %>; grid-row: <%= cell.weekday + 1 %>;"
-        data-heatmap-target="day"
+        data-heatmap-target="<%= cell.selected ? "day today" : "day" %>"
         data-action="heatmap#select"
         data-label="<%= cell.date_label %>"
         data-count="<%= cell.application_count.nil? ? "—" : cell.application_count %>"
