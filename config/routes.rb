@@ -12,6 +12,7 @@ Rails.application.routes.draw do
     post :verify
   end
 
+  resource :activity_update, only: :create
   resource :github_activity_update, only: %i[show create]
   resource :leetcode_activity_update, only: :create
   resource :notion_activity_update, only: :create

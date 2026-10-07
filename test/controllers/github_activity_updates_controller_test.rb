@@ -183,10 +183,10 @@ class GithubActivityUpdatesControllerTest < ActionDispatch::IntegrationTest
         post github_activity_update_path, headers: TURBO_STREAM_HEADERS
       end
       assert_response :success
-      assert_includes response.body, GithubActivityUpdatesController::COOLDOWN_MESSAGE
+      assert_includes response.body, Github::RequestActivityUpdate::COOLDOWN_MESSAGE
       assert_select "turbo-stream[action='update'][target='flash_stack']", count: 1 do
         assert_select ".flash-message--notice .flash-message__text",
-          GithubActivityUpdatesController::COOLDOWN_MESSAGE
+          Github::RequestActivityUpdate::COOLDOWN_MESSAGE
       end
       assert_predicate connection.reload, :sync_status_ready?
 
@@ -256,11 +256,11 @@ class GithubActivityUpdatesControllerTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_predicate connection.reload, :sync_status_error?
-    assert_equal GithubActivityUpdatesController::ENQUEUE_FAILURE_MESSAGE, connection.last_sync_error
+    assert_equal Github::RequestActivityUpdate::ENQUEUE_FAILURE_MESSAGE, connection.last_sync_error
     assert_includes response.body, "GitHub activity could not start. Try again."
     assert_select "turbo-stream[action='update'][target='flash_stack']", count: 1 do
       assert_select ".flash-message--alert .flash-message__text",
-        GithubActivityUpdatesController::ENQUEUE_FAILURE_MESSAGE
+        Github::RequestActivityUpdate::ENQUEUE_FAILURE_MESSAGE
     end
     assert_includes response.body, "Retry update"
     assert_not_includes response.body, "queue"

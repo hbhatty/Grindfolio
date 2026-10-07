@@ -15,7 +15,15 @@
       <h1>Activity</h1>
       <p class="dashboard-intro">Your Build, Practice, and Apply record. Activity updates only when you ask.</p>
     </div>
-    <span class="dashboard-private-status"><span aria-hidden="true"></span>Private</span>
+    <div class="dashboard-heading-actions">
+      <span class="dashboard-private-status"><span aria-hidden="true"></span>Private</span>
+      <%= button_to "Update all",
+        activity_update_path,
+        method: :post,
+        class: "button button--primary",
+        disabled: !(@github_connection || @leetcode_connection || @notion_connection),
+        data: { turbo_submits_with: "Updating…" } %>
+    </div>
   </header>
 
   <section class="provider-grid" aria-label="Activity providers">
