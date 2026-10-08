@@ -20,8 +20,16 @@ export default class extends Controller {
     const selected = this.dayTargets.find((day) => day.getAttribute("aria-pressed") === "true")
     if (!selected) return
 
+    this.selectedDay = selected
+    this.calendarObserver = new ResizeObserver(() => this.scrollSelectedIntoView(this.selectedDay))
+    this.calendarObserver.observe(selected.closest(".heatmap-calendar"))
+
     this.updateDetails(selected)
     this.scrollSelectedIntoView(selected)
+  }
+
+  disconnect() {
+    this.calendarObserver?.disconnect()
   }
 
   select(event) {
@@ -34,13 +42,14 @@ export default class extends Controller {
   }
 
   selectDay(day) {
+    this.selectedDay = day
     this.dayTargets.forEach((cell) => cell.setAttribute("aria-pressed", String(cell === day)))
     this.updateDetails(day)
   }
 
   scrollSelectedIntoView(day) {
     const calendar = day.closest(".heatmap-calendar")
-    if (!calendar) return
+    if (!calendar || calendar.clientWidth === 0) return
 
     const calendarBounds = calendar.getBoundingClientRect()
     const dayBounds = day.getBoundingClientRect()

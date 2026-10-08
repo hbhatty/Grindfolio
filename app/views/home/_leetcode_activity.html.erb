@@ -5,6 +5,14 @@
     <p class="heatmap-kicker">Practice</p>
     <h2 id="practice-heatmap-heading">LeetCode activity</h2>
     <p class="heatmap-caption">Cached submission totals retain the LeetCode date (UTC); they are not rebucketed into your local time zone.</p>
+    <p class="heatmap-connection-meta">
+      <span class="provider-disclosure">Unofficial beta.</span>
+      <% if @leetcode_connection %>
+        Connected as <strong>@<%= @leetcode_connection.username %></strong> · Tracking from <%= @leetcode_connection.tracking_started_on.to_fs(:long) %> (UTC)
+      <% else %>
+        Tracking starts on the UTC connection date; earlier submissions are not imported.
+      <% end %>
+    </p>
   </header>
 
   <div class="heatmap-sync">
@@ -30,6 +38,10 @@
           class: "button button--primary heatmap-sync-action",
           aria: { label: "Update LeetCode activity" },
           data: { turbo_submits_with: "Updating…" } %>
+      <% else %>
+        <%= link_to "Connect LeetCode",
+          account_path(anchor: "leetcode-connection-heading"),
+          class: "button button--secondary heatmap-secondary-action" %>
       <% end %>
     </div>
   </div>

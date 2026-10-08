@@ -12,6 +12,9 @@
       <p class="heatmap-kicker">Build</p>
       <h2 id="build-heatmap-heading">GitHub activity</h2>
       <p class="heatmap-caption">Official daily totals retain the calendar dates assigned by GitHub.</p>
+      <% if @github_connection %>
+        <p class="heatmap-connection-meta">Connected as <strong>@<%= @github_identity.provider_username %></strong> · Tracking from <%= @github_connection.tracking_started_on.to_fs(:long) %></p>
+      <% end %>
     </header>
 
     <div class="heatmap-sync">
@@ -59,6 +62,11 @@
             method: :post,
             class: "button button--primary heatmap-sync-action",
             aria: { label: @github_connection.sync_status_error? ? "Retry GitHub activity update" : "Update GitHub activity" } %>
+        <% else %>
+          <%= link_to "Connect GitHub",
+            account_path(anchor: "github-connection-heading"),
+            class: "button button--secondary heatmap-secondary-action",
+            data: { turbo_frame: "_top" } %>
         <% end %>
       </div>
     </div>

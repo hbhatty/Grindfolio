@@ -1,0 +1,25 @@
+<% tone, status = if connection.nil?
+  [ "disconnected", "Not connected" ]
+elsif key == :build && connection.sync_status_reauthorization_required?
+  [ "reauthorization_required", "Reconnect" ]
+elsif key == :build && (connection.sync_status_queued? || connection.sync_status_syncing?)
+  [ "queued", "Updating…" ]
+elsif connection.last_sync_error.present?
+  [ "error", "Update failed" ]
+elsif connection.last_synced_at.nil?
+  [ "pending", "Ready to update" ]
+else
+  [ "ready", "Connected" ]
+end %>
+
+<span class="activity-selector-status">
+  <span class="provider-status provider-status--<%= tone %>"><span aria-hidden="true"></span><%= status %></span>
+  <% if connection&.last_synced_at %>
+    <% local_sync_time = connection.last_synced_at.in_time_zone(@display_time_zone) %>
+    <span class="activity-selector-updated">
+      · <%= time_tag local_sync_time,
+        connection.last_synced_at >= 1.minute.ago ? "Updated just now" : "Updated #{time_ago_in_words(connection.last_synced_at)} ago",
+        title: "#{local_sync_time.to_fs(:long)} #{local_sync_time.zone}" %>
+    </span>
+  <% end %>
+</span>

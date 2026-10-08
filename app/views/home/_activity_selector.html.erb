@@ -1,0 +1,22 @@
+<%= link_to "##{key}_activity_panel",
+  id: "#{key}_activity_tab",
+  class: "activity-selector",
+  aria: { controls: "#{key}_activity_panel" },
+  data: {
+    activity_panels_target: "tab",
+    activity_key: key,
+    action: "click->activity-panels#select keydown->activity-panels#navigate"
+  } do %>
+  <span class="activity-selector-heading">
+    <span class="activity-selector-name">
+      <%= render "home/provider_logo", key:, provider: %>
+      <strong><%= label %></strong>
+    </span>
+    <span class="activity-selector-hint" aria-hidden="true">View</span>
+  </span>
+  <% if key == :build %>
+    <%= render "home/github_provider_frame" %>
+  <% else %>
+    <%= render "home/activity_selector_status", connection:, key: %>
+  <% end %>
+<% end %>

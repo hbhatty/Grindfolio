@@ -5,6 +5,12 @@
     <p class="heatmap-kicker">Apply</p>
     <h2 id="apply-heatmap-heading">Notion applications</h2>
     <p class="heatmap-caption">Each dated Notion row counts once on its Application Date. Select a day to review details; later status changes update that day without creating new activity.</p>
+    <% if @notion_connection %>
+      <p class="heatmap-connection-meta">
+        <strong><%= @notion_connection.workspace_name.presence || "Notion workspace" %></strong> · Tracking from
+        <%= @notion_connection.tracking_started_on.to_fs(:long) %>
+      </p>
+    <% end %>
   </header>
 
   <div class="heatmap-sync">
@@ -39,6 +45,10 @@
           method: :post,
           class: "button button--primary heatmap-sync-action",
           data: { turbo_submits_with: "Updating…" } %>
+      <% else %>
+        <%= link_to "Connect Notion",
+          account_path(anchor: "notion-connection-heading"),
+          class: "button button--secondary heatmap-secondary-action" %>
       <% end %>
     </div>
   </div>
